@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Lobby from './pages/Lobby';
 import Game from './pages/Game';
+import SavedGamesPage from './pages/SavedGamesPage';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/lobby" element={<Lobby />} />
             <Route path="/game/:roomId" element={<Game />} />
+            <Route path="/saved-games" element={<SavedGamesPage />} />
           </Route>
         </Routes>
       </div>

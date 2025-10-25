@@ -1,8 +1,22 @@
 import { useDrag } from 'react-dnd';
 
-const pieceSymbols = {
-  wp: '♙', wn: '♘', wb: '♗', wr: '♖', wq: '♕', wk: '♔',
-  bp: '♟', bn: '♞', bb: '♝', br: '♜', bq: '♛', bk: '♚',
+// Import SVG pieces
+import wp from '../../assets/pieces/wp.svg';
+import wn from '../../assets/pieces/wn.svg';
+import wb from '../../assets/pieces/wb.svg';
+import wr from '../../assets/pieces/wr.svg';
+import wq from '../../assets/pieces/wq.svg';
+import wk from '../../assets/pieces/wk.svg';
+import bp from '../../assets/pieces/bp.svg';
+import bn from '../../assets/pieces/bn.svg';
+import bb from '../../assets/pieces/bb.svg';
+import br from '../../assets/pieces/br.svg';
+import bq from '../../assets/pieces/bq.svg';
+import bk from '../../assets/pieces/bk.svg';
+
+const pieceImages = {
+  wp, wn, wb, wr, wq, wk,
+  bp, bn, bb, br, bq, bk,
 };
 
 const Piece = ({ piece, position, playerColor, currentTurn }) => {
@@ -20,24 +34,24 @@ const Piece = ({ piece, position, playerColor, currentTurn }) => {
     }),
   }), [piece, position, canDrag]);
 
-  const symbol = pieceSymbols[piece];
+  const pieceImage = pieceImages[piece];
 
   return (
     <div
       ref={drag}
-      className={`piece ${pieceColor === 'w' ? 'text-white' : 'text-gray-800'} ${
+      className={`piece ${
         canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-not-allowed'
-      } ${isDragging ? 'opacity-50' : 'opacity-100'}`}
+      } ${isDragging ? 'opacity-50' : 'opacity-100'} w-full h-full flex items-center justify-center`}
       style={{
-        fontSize: '3rem',
-        lineHeight: '1',
-        textShadow: pieceColor === 'w' 
-          ? '0 0 3px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.6)' 
-          : '0 0 3px rgba(255,255,255,0.8), 0 0 5px rgba(255,255,255,0.6)',
         userSelect: 'none',
       }}
     >
-      {symbol}
+      <img 
+        src={pieceImage} 
+        alt={piece}
+        className="w-[85%] h-[85%] pointer-events-none"
+        draggable={false}
+      />
     </div>
   );
 };

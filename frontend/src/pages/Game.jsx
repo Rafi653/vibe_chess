@@ -5,6 +5,10 @@ import useGameStore from '../store/gameStore';
 import useSocket from '../hooks/useSocket';
 import ChessBoard from '../components/chess/ChessBoard';
 import GameInfo from '../components/chess/GameInfo';
+import MoveHistory from '../components/chess/MoveHistory';
+import CapturedPieces from '../components/chess/CapturedPieces';
+import PlayerNames from '../components/chess/PlayerNames';
+import GameSharing from '../components/chess/GameSharing';
 
 function Game() {
   const { roomId } = useParams();
@@ -60,8 +64,12 @@ function Game() {
               <ChessBoard onMove={handleMove} />
             </div>
             
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-4">
               <GameInfo onReset={handleReset} />
+              <PlayerNames />
+              <CapturedPieces />
+              <MoveHistory />
+              <GameSharing />
             </div>
           </div>
 

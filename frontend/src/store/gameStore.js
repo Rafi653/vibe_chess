@@ -1,6 +1,18 @@
 import { create } from 'zustand';
 import { Chess } from 'chess.js';
 
+// Helper function to calculate captured pieces from move history
+const calculateCapturedPieces = (history) => {
+  const capturedPieces = { white: [], black: [] };
+  history.forEach((move) => {
+    if (move.captured) {
+      const capturedBy = move.color === 'w' ? 'white' : 'black';
+      capturedPieces[capturedBy].push(move.captured);
+    }
+  });
+  return capturedPieces;
+};
+
 const useGameStore = create((set, get) => ({
   // Game state
   chess: new Chess(),
@@ -23,6 +35,10 @@ const useGameStore = create((set, get) => ({
     white: null,
     black: null,
   },
+  
+  // Move history
+  moveHistory: [],
+  capturedPieces: { white: [], black: [] },
   
   // Actions
   setRoomId: (roomId) => set({ roomId }),
@@ -50,12 +66,18 @@ const useGameStore = create((set, get) => ({
       winner = gameState.turn === 'w' ? 'black' : 'white';
     }
     
+    // Update move history and calculate captured pieces
+    const history = chess.history({ verbose: true });
+    const capturedPieces = calculateCapturedPieces(history);
+    
     set({
       fen: gameState.fen,
       currentTurn: gameState.turn,
       gameOver: gameState.isGameOver,
       winner,
       players: gameState.players || get().players,
+      moveHistory: history,
+      capturedPieces,
     });
     
     // Update game status
@@ -84,10 +106,16 @@ const useGameStore = create((set, get) => ({
       });
       
       if (move) {
+        // Update move history and calculate captured pieces
+        const history = chess.history({ verbose: true });
+        const capturedPieces = calculateCapturedPieces(history);
+        
         // Update local state optimistically
         set({
           fen: chess.fen(),
           currentTurn: chess.turn(),
+          moveHistory: history,
+          capturedPieces,
         });
         
         return move;
@@ -108,6 +136,8 @@ const useGameStore = create((set, get) => ({
       winner: null,
       currentTurn: 'w',
       gameStatus: get().players.white && get().players.black ? 'playing' : 'waiting',
+      moveHistory: [],
+      capturedPieces: { white: [], black: [] },
     });
   },
 }));
