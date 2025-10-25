@@ -1,30 +1,24 @@
-import { useState, useEffect } from 'react'
-import './App.css'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Landing from './pages/Landing';
+import Lobby from './pages/Lobby';
+import Game from './pages/Game';
 
 function App() {
-  const [backendStatus, setBackendStatus] = useState('Checking...')
-
-  useEffect(() => {
-    fetch(`${API_URL}/health`)
-      .then(res => res.json())
-      .then(data => setBackendStatus(data.status))
-      .catch(() => setBackendStatus('Backend not reachable'))
-  }, [])
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Vibe Chess</h1>
-        <p>A modern web-based chess application</p>
-        <div className="status">
-          <p>Backend Status: <strong>{backendStatus}</strong></p>
-          <p>API URL: <code>{API_URL}</code></p>
-        </div>
-      </header>
-    </div>
-  )
+    <Router>
+      <div className="flex flex-col min-h-screen">
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route element={<Layout />}>
+            <Route path="/lobby" element={<Lobby />} />
+            <Route path="/game/:roomId" element={<Game />} />
+          </Route>
+        </Routes>
+      </div>
+    </Router>
+  );
 }
 
-export default App
+export default App;
+
