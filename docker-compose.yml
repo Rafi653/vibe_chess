@@ -34,7 +34,8 @@ services:
       # For Cloudflare Tunnel, replace with your frontend tunnel URL
       # Example: https://your-frontend-abc.trycloudflare.com
       # See CLOUDFLARE_TUNNEL.md for details
-      - CORS_ORIGIN=http://localhost:5173
+      # - CORS_ORIGIN=http://localhost:5173
+      - CORS_ORIGIN=https://court-scholarships-alignment-wars.trycloudflare.com
     depends_on:
       - mongo
     networks:
@@ -58,8 +59,10 @@ services:
       # For Cloudflare Tunnel, replace with your backend tunnel URL
       # Example: https://your-backend-xyz.trycloudflare.com
       # See CLOUDFLARE_TUNNEL.md for details
-      - VITE_API_URL=http://localhost:5000
-      - VITE_SOCKET_URL=http://localhost:5000
+      # - VITE_API_URL=http://localhost:5000
+      # - VITE_SOCKET_URL=http://localhost:5000
+      - VITE_API_URL=https://net-programmes-expansys-blanket.trycloudflare.com
+      - VITE_SOCKET_URL=https://net-programmes-expansys-blanket.trycloudflare.com
     depends_on:
       - backend
     networks:
