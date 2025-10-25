@@ -1,26 +1,14 @@
 # Docker Compose configuration for Vibe Chess
-# Note: Dockerfiles need to be created in frontend/ and backend/ directories
-# before this configuration can be used.
+# Orchestrates frontend (React + Vite) and backend (Node.js) services
+
+version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-    depends_on:
-      - backend
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: vibe-chess-backend
     ports:
       - "5000:5000"
     volumes:
@@ -28,3 +16,31 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
+      - PORT=5000
+    networks:
+      - vibe-chess-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: vibe-chess-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - backend
+    networks:
+      - vibe-chess-network
+    restart: unless-stopped
+
+networks:
+  vibe-chess-network:
+    driver: bridge
