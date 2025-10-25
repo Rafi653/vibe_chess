@@ -110,6 +110,13 @@ vibe_chess/
 - MongoDB (v4.4 or higher) or access to MongoDB Atlas
 - Docker & Docker Compose (optional, for containerized development)
 
+### Sharing Your Local App with Friends
+
+Want to let friends play on your locally hosted chess app? Check out our [**Cloudflare Tunnel Guide**](CLOUDFLARE_TUNNEL.md) for step-by-step instructions on:
+- 🌐 Making your local app accessible from anywhere
+- 🔒 Secure sharing without port forwarding
+- ⚙️ Configuration for both Docker and manual setups
+
 ### Environment Setup
 
 1. **Clone the repository**
@@ -137,8 +144,12 @@ vibe_chess/
    cd frontend
    npm install
    
+   # (Optional) Create .env file from example
+   cp .env.example .env
+   
    # The frontend will connect to http://localhost:5000 by default
    # To change this, set VITE_API_URL and VITE_SOCKET_URL in .env
+   # For Cloudflare Tunnel setup, see CLOUDFLARE_TUNNEL.md
    ```
 
 ### Running the Application
