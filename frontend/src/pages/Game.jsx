@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import useGameStore from '../store/gameStore';
 import useSocket from '../hooks/useSocket';
@@ -12,14 +12,22 @@ import GameSharing from '../components/chess/GameSharing';
 
 function Game() {
   const { roomId } = useParams();
-  const { setRoomId, makeMove, resetGame } = useGameStore();
-  const { emitMove, emitReset } = useSocket(roomId);
+  const [searchParams] = useSearchParams();
+  const isBotGame = searchParams.get('bot') === 'true';
+  const botDifficulty = searchParams.get('difficulty') || 'medium';
+  
+  const { setRoomId, makeMove, resetGame, setIsBotGame, setBotDifficulty } = useGameStore();
+  const { emitMove, emitReset } = useSocket(roomId, isBotGame, botDifficulty);
 
   useEffect(() => {
     if (roomId) {
       setRoomId(roomId);
+      if (isBotGame) {
+        setIsBotGame(true);
+        setBotDifficulty(botDifficulty);
+      }
     }
-  }, [roomId, setRoomId]);
+  }, [roomId, isBotGame, botDifficulty, setRoomId, setIsBotGame, setBotDifficulty]);
 
   const handleMove = (from, to) => {
     // Make move locally (optimistic update)
@@ -55,7 +63,7 @@ function Game() {
 
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Vibe Chess
+              Vibe Chess {isBotGame && <span className="text-lg text-green-600">🤖 vs Bot ({botDifficulty})</span>}
             </h1>
           </div>
 
@@ -69,13 +77,14 @@ function Game() {
               <PlayerNames />
               <CapturedPieces />
               <MoveHistory />
-              <GameSharing />
+              {!isBotGame && <GameSharing />}
             </div>
           </div>
 
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>Drag and drop pieces to make your move</p>
-            <p className="mt-2">Share the room ID with your opponent to play together</p>
+            {!isBotGame && <p className="mt-2">Share the room ID with your opponent to play together</p>}
+            {isBotGame && <p className="mt-2">The bot will respond automatically after your move</p>}
           </div>
         </motion.div>
       </div>

@@ -4,6 +4,7 @@ import http from 'http'
 import { Server } from 'socket.io'
 import dotenv from 'dotenv'
 import { gameManager } from './gameManager'
+import { selectBotMove, getBotDelay, BotDifficulty } from './botPlayer'
 import { connectDatabase } from './config/database'
 import authRoutes from './routes/auth'
 import gameHistoryRoutes from './routes/gameHistory'
@@ -102,7 +103,7 @@ io.on('connection', (socket) => {
   })
 
   // Join room event
-  socket.on('joinRoom', ({ roomId, playerId, userId }) => {
+  socket.on('joinRoom', ({ roomId, playerId, userId, isBotGame, botDifficulty }) => {
     if (!roomId) {
       socket.emit('error', { message: 'Room ID is required' })
       return
@@ -110,15 +111,21 @@ io.on('connection', (socket) => {
 
     // Join the socket room
     socket.join(roomId)
-    console.log(`[Socket.IO] Player ${playerId || socket.id} (user: ${userId}) joined room: ${roomId}`)
+    console.log(`[Socket.IO] Player ${playerId || socket.id} (user: ${userId}) joined room: ${roomId}${isBotGame ? ' (Bot Game)' : ''}`)
 
     // Create game if it doesn't exist
     if (!gameManager.hasGame(roomId)) {
-      gameManager.createGame(roomId)
+      gameManager.createGame(roomId, isBotGame, botDifficulty)
     }
 
     // Add player to the game with user ID
-    const result = gameManager.addPlayer(roomId, playerId || socket.id, userId)
+    const result = gameManager.addPlayer(roomId, playerId || socket.id, userId, false)
+    
+    // If this is a bot game, add the bot as the opponent
+    if (isBotGame && result.color === 'white') {
+      gameManager.addPlayer(roomId, 'bot-player', 'Bot', true)
+    }
+    
     const gameState = gameManager.getState(roomId)
 
     // Notify the player
@@ -130,13 +137,15 @@ io.on('connection', (socket) => {
       timestamp: new Date().toISOString()
     })
 
-    // Notify other players in the room
-    socket.to(roomId).emit('playerJoined', {
-      playerId: playerId || socket.id,
-      color: result.color,
-      gameState,
-      timestamp: new Date().toISOString()
-    })
+    // Notify other players in the room (not for bot games)
+    if (!isBotGame) {
+      socket.to(roomId).emit('playerJoined', {
+        playerId: playerId || socket.id,
+        color: result.color,
+        gameState,
+        timestamp: new Date().toISOString()
+      })
+    }
   })
 
   // Move event
@@ -156,6 +165,36 @@ io.on('connection', (socket) => {
         gameState: result.gameState,
         timestamp: new Date().toISOString()
       })
+
+      // If it's a bot game and the game is not over, trigger bot move
+      if (gameManager.isBotGame(roomId) && !result.gameState.isGameOver) {
+        const difficulty = gameManager.getBotDifficulty(roomId) || BotDifficulty.MEDIUM
+        const delay = getBotDelay(difficulty)
+        
+        setTimeout(() => {
+          const chess = gameManager.getChessInstance(roomId)
+          if (chess && !chess.isGameOver()) {
+            const botMove = selectBotMove(chess, difficulty)
+            
+            if (botMove) {
+              const botResult = gameManager.makeMove(roomId, 'bot-player', {
+                from: botMove.from,
+                to: botMove.to,
+                promotion: botMove.promotion
+              })
+              
+              if (botResult.success) {
+                io.to(roomId).emit('moveMade', {
+                  playerId: 'bot-player',
+                  move: { from: botMove.from, to: botMove.to, promotion: botMove.promotion },
+                  gameState: botResult.gameState,
+                  timestamp: new Date().toISOString()
+                })
+              }
+            }
+          }
+        }, delay)
+      }
     } else {
       // Send error back to the player
       socket.emit('moveError', {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useGameStore from '../../store/gameStore';
 
 const PlayerNames = () => {
-  const { players, playerColor, currentTurn } = useGameStore();
+  const { players, playerColor, currentTurn, playerData, isBotGame } = useGameStore();
   const [localNames, setLocalNames] = useState({ white: '', black: '' });
   
   // Load names from localStorage
@@ -18,10 +18,15 @@ const PlayerNames = () => {
   };
 
   const getDisplayName = (color) => {
+    // Check if it's a bot
+    if (playerData && playerData[color]?.isBot) {
+      return `🤖 Bot (${playerData[color]?.userId || 'Bot'})`;
+    }
     return localNames[color] || players[color] || `${color === 'white' ? 'White' : 'Black'} Player`;
   };
 
   const isWhiteTurn = currentTurn === 'w';
+  const isBot = (color) => playerData && playerData[color]?.isBot;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
@@ -39,7 +44,11 @@ const PlayerNames = () => {
             {!isWhiteTurn ? 'Playing' : 'Waiting'}
           </span>
         </div>
-        {playerColor === 'black' || !players.black ? (
+        {isBot('black') ? (
+          <div className="font-semibold text-green-700 flex items-center gap-1">
+            {getDisplayName('black')}
+          </div>
+        ) : (playerColor === 'black' || !players.black) ? (
           <input
             type="text"
             value={localNames.black}
@@ -65,7 +74,11 @@ const PlayerNames = () => {
             {isWhiteTurn ? 'Playing' : 'Waiting'}
           </span>
         </div>
-        {playerColor === 'white' || !players.white ? (
+        {isBot('white') ? (
+          <div className="font-semibold text-green-700 flex items-center gap-1">
+            {getDisplayName('white')}
+          </div>
+        ) : (playerColor === 'white' || !players.white) ? (
           <input
             type="text"
             value={localNames.white}
