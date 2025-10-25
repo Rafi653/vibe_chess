@@ -33,7 +33,8 @@ npm test -- gameManager.test.ts
 
 ```
 backend/src/__tests__/
-├── gameManager.test.ts    # Game logic tests (33 tests)
+├── gameManager.test.ts    # Game logic tests (42 tests, includes 10 bot tests)
+├── botPlayer.test.ts      # Bot AI logic tests (22 tests)
 ├── socket.test.ts         # WebSocket integration tests (8 tests)
 ├── auth.test.ts          # Authentication tests (7 tests)
 └── testDb.ts             # Test database helper
@@ -41,7 +42,8 @@ backend/src/__tests__/
 
 ### Test Coverage
 
-- **gameManager:** Game creation, player management, move validation, state management
+- **gameManager:** Game creation, player management, move validation, state management, bot game support
+- **botPlayer:** Bot move selection, difficulty levels, position evaluation, edge cases
 - **Socket.IO:** Real-time communication, room management, event handling
 - **Auth:** User registration, login, profile management (requires database)
 
@@ -90,14 +92,21 @@ frontend/src/
 ## Test Results Summary
 
 ### Overall Statistics
-- **Total Tests:** 70
+- **Total Tests:** 93 (up from 70)
 - **Pass Rate:** 100%
-- **Backend:** 41 passing (gameManager + Socket.IO)
+- **Backend:** 64 passing (gameManager: 42, botPlayer: 22)
 - **Frontend:** 29 passing (gameStore + components)
 
 ### Backend Results
 ```
-✓ gameManager.test.ts (33 tests)
+✓ gameManager.test.ts (42 tests)
+  - 32 original tests
+  - 10 new bot game support tests
+✓ botPlayer.test.ts (22 tests)
+  - Bot move selection tests
+  - Difficulty level tests
+  - Edge case handling
+  - Position evaluation tests
   - Game creation and initialization
   - Player assignment
   - Move validation
