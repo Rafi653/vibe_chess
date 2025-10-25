@@ -1,11 +1,39 @@
 import { motion } from 'framer-motion';
 import { useParams, Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import useGameStore from '../store/gameStore';
+import useSocket from '../hooks/useSocket';
+import ChessBoard from '../components/chess/ChessBoard';
+import GameInfo from '../components/chess/GameInfo';
 
 function Game() {
   const { roomId } = useParams();
+  const { setRoomId, makeMove, resetGame } = useGameStore();
+  const { emitMove, emitReset } = useSocket(roomId);
+
+  useEffect(() => {
+    if (roomId) {
+      setRoomId(roomId);
+    }
+  }, [roomId, setRoomId]);
+
+  const handleMove = (from, to) => {
+    // Make move locally (optimistic update)
+    const move = makeMove(from, to);
+    
+    if (move) {
+      // Emit move to server
+      emitMove(move);
+    }
+  };
+
+  const handleReset = () => {
+    resetGame();
+    emitReset();
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0 }}
@@ -21,25 +49,25 @@ function Game() {
             </Link>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Chess Game
-              </h1>
-              <p className="text-gray-600">
-                Room ID: <span className="font-mono font-semibold">{roomId}</span>
-              </p>
-            </div>
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Vibe Chess
+            </h1>
+          </div>
 
-            <div className="aspect-square max-w-2xl mx-auto bg-gray-200 rounded-lg flex items-center justify-center">
-              <p className="text-gray-500 text-lg">
-                Chess board will be rendered here
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 flex justify-center">
+              <ChessBoard onMove={handleMove} />
             </div>
+            
+            <div className="lg:col-span-1">
+              <GameInfo onReset={handleReset} />
+            </div>
+          </div>
 
-            <div className="mt-6 text-center text-gray-600">
-              <p>Game functionality coming soon!</p>
-            </div>
+          <div className="mt-6 text-center text-sm text-gray-600">
+            <p>Drag and drop pieces to make your move</p>
+            <p className="mt-2">Share the room ID with your opponent to play together</p>
           </div>
         </motion.div>
       </div>
