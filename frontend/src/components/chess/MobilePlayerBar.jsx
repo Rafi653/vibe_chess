@@ -29,6 +29,11 @@ const pieceValues = {
 };
 
 const MobilePlayerBar = ({ color, isOpponent = false }) => {
+  // Validate color prop
+  if (!color || (color !== 'white' && color !== 'black')) {
+    return null;
+  }
+  
   const { capturedPieces, playerColor, playerData, players, currentTurn } = useGameStore();
   
   // Determine which pieces to show (captured by this color)

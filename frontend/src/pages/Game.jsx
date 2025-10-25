@@ -85,7 +85,9 @@ function Game() {
   };
 
   // Determine opponent color and player color for mobile display
-  // Default to showing white as player and black as opponent if not set
+  // When not connected to backend (playerColor is null), default to showing
+  // white as player and black as opponent for demo/preview purposes.
+  // This ensures the mobile UI is visible even when disconnected.
   const displayPlayerColor = playerColor || 'white';
   const opponentColor = displayPlayerColor === 'white' ? 'black' : 'white';
 
