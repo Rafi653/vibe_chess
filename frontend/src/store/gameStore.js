@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Chess } from 'chess.js';
+import { gameHistoryAPI } from '../services/api';
 
 // Helper function to calculate captured pieces from move history
 const calculateCapturedPieces = (history) => {
@@ -19,6 +20,7 @@ const useGameStore = create((set, get) => ({
   fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
   gameOver: false,
   winner: null,
+  gameSaved: false,
   
   // Player state
   roomId: null,
@@ -35,6 +37,7 @@ const useGameStore = create((set, get) => ({
     white: null,
     black: null,
   },
+  playerData: {}, // Store full player data with user IDs
   
   // Move history
   moveHistory: [],
@@ -70,12 +73,16 @@ const useGameStore = create((set, get) => ({
     const history = chess.history({ verbose: true });
     const capturedPieces = calculateCapturedPieces(history);
     
+    // Store full player data for saving games
+    const playerData = gameState.playerData || {};
+    
     set({
       fen: gameState.fen,
       currentTurn: gameState.turn,
       gameOver: gameState.isGameOver,
       winner,
       players: gameState.players || get().players,
+      playerData, // Store the full player data with user IDs
       moveHistory: history,
       capturedPieces,
     });
@@ -127,6 +134,53 @@ const useGameStore = create((set, get) => ({
     return null;
   },
   
+  saveGameToBackend: async () => {
+    const state = get();
+    
+    // Check if game is over and not already saved
+    if (!state.gameOver || state.gameSaved) {
+      return { success: false, error: 'Game not over or already saved' };
+    }
+    
+    // Get user IDs from playerData
+    const whiteUserId = state.playerData?.white?.userId;
+    const blackUserId = state.playerData?.black?.userId;
+    
+    // Both players must be authenticated to save
+    if (!whiteUserId || !blackUserId) {
+      console.log('Cannot save game: one or both players are not authenticated');
+      return { success: false, error: 'Both players must be logged in to save game' };
+    }
+    
+    try {
+      // Determine the result type
+      let result = 'checkmate';
+      if (state.chess.isStalemate()) {
+        result = 'stalemate';
+      } else if (state.chess.isDraw()) {
+        result = 'draw';
+      }
+      
+      const gameData = {
+        roomId: state.roomId,
+        blackPlayerId: blackUserId,
+        winner: state.winner,
+        pgn: state.chess.pgn(),
+        fen: state.fen,
+        moveHistory: state.moveHistory,
+        result,
+      };
+      
+      await gameHistoryAPI.saveGame(gameData);
+      set({ gameSaved: true });
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to save game:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
   resetGame: () => {
     const chess = new Chess();
     set({
@@ -138,6 +192,7 @@ const useGameStore = create((set, get) => ({
       gameStatus: get().players.white && get().players.black ? 'playing' : 'waiting',
       moveHistory: [],
       capturedPieces: { white: [], black: [] },
+      gameSaved: false,
     });
   },
 }));

@@ -2,10 +2,21 @@ import express, { Request, Response } from 'express'
 import cors from 'cors'
 import http from 'http'
 import { Server } from 'socket.io'
+import dotenv from 'dotenv'
 import { gameManager } from './gameManager'
+import { connectDatabase } from './config/database'
+import authRoutes from './routes/auth'
+import gameHistoryRoutes from './routes/gameHistory'
+import friendsRoutes from './routes/friends'
+
+// Load environment variables
+dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 5000
+
+// Connect to database
+connectDatabase()
 
 // Middleware
 app.use(cors())
@@ -24,6 +35,15 @@ app.get('/api/status', (req: Request, res: Response) => {
     environment: process.env.NODE_ENV || 'development'
   })
 })
+
+// Auth and user routes
+app.use('/api/auth', authRoutes)
+
+// Game history routes
+app.use('/api/games', gameHistoryRoutes)
+
+// Friends routes
+app.use('/api/friends', friendsRoutes)
 
 // Room management routes
 app.post('/create-room', (req: Request, res: Response) => {
@@ -82,7 +102,7 @@ io.on('connection', (socket) => {
   })
 
   // Join room event
-  socket.on('joinRoom', ({ roomId, playerId }) => {
+  socket.on('joinRoom', ({ roomId, playerId, userId }) => {
     if (!roomId) {
       socket.emit('error', { message: 'Room ID is required' })
       return
@@ -90,15 +110,15 @@ io.on('connection', (socket) => {
 
     // Join the socket room
     socket.join(roomId)
-    console.log(`[Socket.IO] Player ${playerId || socket.id} joined room: ${roomId}`)
+    console.log(`[Socket.IO] Player ${playerId || socket.id} (user: ${userId}) joined room: ${roomId}`)
 
     // Create game if it doesn't exist
     if (!gameManager.hasGame(roomId)) {
       gameManager.createGame(roomId)
     }
 
-    // Add player to the game
-    const result = gameManager.addPlayer(roomId, playerId || socket.id)
+    // Add player to the game with user ID
+    const result = gameManager.addPlayer(roomId, playerId || socket.id, userId)
     const gameState = gameManager.getState(roomId)
 
     // Notify the player
