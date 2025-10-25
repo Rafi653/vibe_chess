@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function Lobby() {
   const [roomId, setRoomId] = useState('');
@@ -68,6 +68,21 @@ function Lobby() {
                 Join Game
               </button>
             </form>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-8 mt-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+              View Saved Games
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Review your previously played games and their move history
+            </p>
+            <Link
+              to="/saved-games"
+              className="block w-full bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors text-center"
+            >
+              View Saved Games
+            </Link>
           </div>
         </motion.div>
       </div>
