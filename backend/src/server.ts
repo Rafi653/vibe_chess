@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import cors from 'cors'
 import http from 'http'
 import { Server } from 'socket.io'
+import { gameManager } from './gameManager'
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -73,10 +74,108 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log(`[Socket.IO] New client connected: ${socket.id}`)
   
+  // Send welcome message
+  socket.emit('welcome', { 
+    message: 'Connected to Vibe Chess WebSocket server',
+    socketId: socket.id,
+    timestamp: new Date().toISOString()
+  })
+
+  // Join room event
+  socket.on('joinRoom', ({ roomId, playerId }) => {
+    if (!roomId) {
+      socket.emit('error', { message: 'Room ID is required' })
+      return
+    }
+
+    // Join the socket room
+    socket.join(roomId)
+    console.log(`[Socket.IO] Player ${playerId || socket.id} joined room: ${roomId}`)
+
+    // Create game if it doesn't exist
+    if (!gameManager.hasGame(roomId)) {
+      gameManager.createGame(roomId)
+    }
+
+    // Add player to the game
+    const result = gameManager.addPlayer(roomId, playerId || socket.id)
+    const gameState = gameManager.getState(roomId)
+
+    // Notify the player
+    socket.emit('joinedRoom', {
+      roomId,
+      playerId: playerId || socket.id,
+      color: result.color,
+      gameState,
+      timestamp: new Date().toISOString()
+    })
+
+    // Notify other players in the room
+    socket.to(roomId).emit('playerJoined', {
+      playerId: playerId || socket.id,
+      color: result.color,
+      gameState,
+      timestamp: new Date().toISOString()
+    })
+  })
+
+  // Move event
+  socket.on('move', ({ roomId, playerId, move }) => {
+    if (!roomId || !move) {
+      socket.emit('error', { message: 'Room ID and move are required' })
+      return
+    }
+
+    const result = gameManager.makeMove(roomId, playerId || socket.id, move)
+
+    if (result.success) {
+      // Broadcast the move to all players in the room
+      io.to(roomId).emit('moveMade', {
+        playerId: playerId || socket.id,
+        move,
+        gameState: result.gameState,
+        timestamp: new Date().toISOString()
+      })
+    } else {
+      // Send error back to the player
+      socket.emit('moveError', {
+        error: result.error,
+        timestamp: new Date().toISOString()
+      })
+    }
+  })
+
+  // Reset game event
+  socket.on('reset', ({ roomId }) => {
+    if (!roomId) {
+      socket.emit('error', { message: 'Room ID is required' })
+      return
+    }
+
+    const success = gameManager.resetGame(roomId)
+    
+    if (success) {
+      const gameState = gameManager.getState(roomId)
+      
+      // Broadcast reset to all players in the room
+      io.to(roomId).emit('gameReset', {
+        gameState,
+        timestamp: new Date().toISOString()
+      })
+    } else {
+      socket.emit('error', { message: 'Game not found' })
+    }
+  })
+
+  // Disconnect event
   socket.on('disconnect', (reason) => {
     console.log(`[Socket.IO] Client disconnected: ${socket.id}, reason: ${reason}`)
+    
+    // Note: In a production app, you'd want to track which rooms the socket was in
+    // and clean up appropriately. For now, we'll leave games in memory.
   })
   
+  // Legacy message handler for backward compatibility
   socket.on('message', (data) => {
     console.log(`[Socket.IO] Message from ${socket.id}:`, data)
     socket.emit('message', { 
@@ -84,13 +183,6 @@ io.on('connection', (socket) => {
       data,
       timestamp: new Date().toISOString()
     })
-  })
-  
-  // Send welcome message
-  socket.emit('welcome', { 
-    message: 'Connected to Vibe Chess WebSocket server',
-    socketId: socket.id,
-    timestamp: new Date().toISOString()
   })
 })
 
