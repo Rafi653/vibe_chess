@@ -56,38 +56,26 @@ chess-app/
 
 3. **Run the application**
 
-   **Option A: Using Docker Compose (Recommended)**
-   ```bash
-   docker-compose up
-   ```
-   - Frontend will be available at `http://localhost:3000`
-   - Backend API will be available at `http://localhost:5000`
+   > **Note**: Docker configuration and npm scripts will be added in future development phases.
+   > The current setup provides the base structure for development to begin.
 
-   **Option B: Run manually**
-   
-   Terminal 1 (Backend):
-   ```bash
-   cd backend
-   npm start
-   ```
-
-   Terminal 2 (Frontend):
-   ```bash
-   cd frontend
-   npm start
-   ```
+   **Coming Soon:**
+   - Docker Compose for containerized development
+   - npm start scripts for frontend and backend
+   - Development servers with hot-reloading
 
 4. **Development**
    - Frontend code goes in `./frontend`
    - Backend code goes in `./backend`
-   - Both support hot-reloading during development
+   - Add your application code and scripts as development progresses
 
 ### Code Quality
 
-This project uses ESLint and Prettier for code quality and formatting:
+Configuration files for ESLint and Prettier are included:
+- `.eslintrc` - Linting rules
+- `.prettierrc` - Code formatting rules
 
-- Run linting: `npm run lint` (in frontend or backend)
-- Format code: `npm run format` (in frontend or backend)
+> **Note**: Linting and formatting scripts can be added to package.json as needed during development.
 
 ## Contributing
 

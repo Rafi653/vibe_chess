@@ -1,4 +1,6 @@
-version: '3.8'
+# Docker Compose configuration for Vibe Chess
+# Note: Dockerfiles need to be created in frontend/ and backend/ directories
+# before this configuration can be used.
 
 services:
   frontend:
