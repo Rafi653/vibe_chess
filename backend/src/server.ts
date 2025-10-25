@@ -2,10 +2,20 @@ import express, { Request, Response } from 'express'
 import cors from 'cors'
 import http from 'http'
 import { Server } from 'socket.io'
+import dotenv from 'dotenv'
 import { gameManager } from './gameManager'
+import { connectDatabase } from './config/database'
+import authRoutes from './routes/auth'
+import gameHistoryRoutes from './routes/gameHistory'
+
+// Load environment variables
+dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 5000
+
+// Connect to database
+connectDatabase()
 
 // Middleware
 app.use(cors())
@@ -24,6 +34,12 @@ app.get('/api/status', (req: Request, res: Response) => {
     environment: process.env.NODE_ENV || 'development'
   })
 })
+
+// Auth and user routes
+app.use('/api/auth', authRoutes)
+
+// Game history routes
+app.use('/api/games', gameHistoryRoutes)
 
 // Room management routes
 app.post('/create-room', (req: Request, res: Response) => {

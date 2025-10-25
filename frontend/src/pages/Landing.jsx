@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import useUserStore from '../store/userStore';
 
 function Landing() {
+  const { isAuthenticated, user } = useUserStore();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
       <motion.div
@@ -16,6 +19,11 @@ function Landing() {
         <p className="text-xl text-gray-300 mb-8">
           A modern web-based chess application
         </p>
+        {isAuthenticated && (
+          <p className="text-lg text-gray-200 mb-6">
+            Welcome back, {user?.username}!
+          </p>
+        )}
         <div className="space-x-4">
           <Link
             to="/lobby"
@@ -23,6 +31,22 @@ function Landing() {
           >
             Enter Lobby
           </Link>
+          {!isAuthenticated && (
+            <>
+              <Link
+                to="/login"
+                className="inline-block bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors border-2 border-white"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="inline-block bg-transparent text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-900 transition-colors border-2 border-white"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       </motion.div>
     </div>
