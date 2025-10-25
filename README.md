@@ -347,7 +347,7 @@ Configuration files for ESLint and Prettier are included:
 The bot opponent uses a custom JavaScript-based chess engine with the following features:
 
 #### Position Evaluation
-- **Material Count**: Values pieces (pawn=100, knight=320, bishop=330, rook=500, queen=900)
+- **Material Count**: Values pieces (pawn=100, knight=320, bishop=330, rook=500, queen=900, king=20000)
 - **Piece-Square Tables**: Evaluates piece positioning (e.g., central pawns are better)
 - **Tactical Bonuses**: Rewards checks and punishes being in check
 
