@@ -6,6 +6,7 @@ A modern web-based chess application with user profiles, game tracking, and soci
 
 ### 🎮 Core Chess Gameplay
 - Real-time multiplayer chess using WebSocket (Socket.IO)
+- **Single-player mode vs AI bot with difficulty levels (Easy, Medium, Hard)**
 - Drag-and-drop piece movement
 - Move validation and game state management
 - Check, checkmate, and stalemate detection
@@ -279,7 +280,8 @@ Configuration files for ESLint and Prettier are included:
 - **Mongoose** - ODM for MongoDB
 - **JWT** - Authentication tokens
 - **Bcrypt** - Password hashing
-- **Chess.js** - Chess logic
+- **Chess.js** - Chess logic and validation
+- **Custom Chess AI** - JavaScript-based bot with position evaluation
 - **Dotenv** - Environment variables
 
 ## Usage Guide
@@ -293,6 +295,7 @@ Configuration files for ESLint and Prettier are included:
 
 ### Playing a Game
 
+#### Multiplayer Mode
 1. Log in to your account
 2. Click "Enter Lobby"
 3. Either:
@@ -301,6 +304,18 @@ Configuration files for ESLint and Prettier are included:
 4. Share the Room ID with your opponent
 5. Play chess by dragging pieces
 6. Games are automatically saved when completed
+
+#### Single-Player Mode (vs Bot)
+1. Log in to your account
+2. Click "Enter Lobby"
+3. Click "Play vs Bot"
+4. Select difficulty level:
+   - **Easy**: Random moves with occasional good moves (beginner-friendly)
+   - **Medium**: Evaluates positions and picks good moves (intermediate)
+   - **Hard**: Deeper evaluation with look-ahead (advanced)
+5. Click "Start Bot Game"
+6. Play as white - the bot will automatically respond after your moves
+7. The bot provides realistic thinking delays based on difficulty
 
 ### Managing Friends
 
@@ -325,6 +340,51 @@ Configuration files for ESLint and Prettier are included:
 3. Click "Edit Profile" to update username or avatar
 4. Statistics update automatically after each game
 
+## Bot Implementation Details
+
+### Chess AI Architecture
+
+The bot opponent uses a custom JavaScript-based chess engine with the following features:
+
+#### Position Evaluation
+- **Material Count**: Values pieces (pawn=100, knight=320, bishop=330, rook=500, queen=900, king=20000)
+- **Piece-Square Tables**: Evaluates piece positioning (e.g., central pawns are better)
+- **Tactical Bonuses**: Rewards checks and punishes being in check
+
+#### Difficulty Levels
+- **Easy (Beginner-Friendly)**:
+  - 70% random moves, 30% evaluated moves
+  - Good for learning basic chess rules
+  - Think time: 500-1000ms
+  
+- **Medium (Intermediate)**:
+  - Evaluates all positions and picks from top 3 moves
+  - Weighted selection with some randomness
+  - Think time: 800-1500ms
+  
+- **Hard (Advanced)**:
+  - Deeper evaluation with 1-move look-ahead
+  - Considers opponent's best responses
+  - Picks optimal moves 90% of the time
+  - Think time: 1200-2000ms
+
+#### Testing
+- 22 comprehensive bot logic tests
+- 10 bot integration tests with GameManager
+- Edge case coverage: checkmate, stalemate, promotion, castling
+- All tests passing (64 backend tests total)
+
+### File Structure
+```
+backend/src/
+├── botPlayer.ts           # Bot AI logic with difficulty levels
+├── gameManager.ts         # Extended with bot game support
+├── server.ts              # Socket handlers for bot moves
+└── __tests__/
+    ├── botPlayer.test.ts  # Bot logic tests
+    └── gameManager.test.ts # Includes bot game tests
+```
+
 ## Contributing
 
 1. Create a feature branch from `main`
@@ -344,9 +404,10 @@ Potential features for future development:
 - **Opening Database**: Track and analyze chess openings
 - **Time Controls**: Add chess clocks for timed games
 - **Spectator Mode**: Watch ongoing games
-- **Move Analysis**: AI-powered move suggestions and analysis
+- **Move Analysis**: AI-powered move suggestions and analysis (using bot engine)
 - **Themes**: Customizable board and piece themes
 - **Mobile App**: Native mobile applications
+- **Advanced Bot Features**: Stronger engine integration (e.g., Stockfish.js), opening books, endgame tablebases
 
 ## Troubleshooting
 

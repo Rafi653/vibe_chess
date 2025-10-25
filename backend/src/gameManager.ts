@@ -1,4 +1,5 @@
 import { Chess } from 'chess.js'
+import { BotDifficulty } from './botPlayer'
 
 interface GameState {
   chess: Chess
@@ -6,13 +7,17 @@ interface GameState {
     white?: {
       socketId: string
       userId?: string
+      isBot?: boolean
     }
     black?: {
       socketId: string
       userId?: string
+      isBot?: boolean
     }
   }
   createdAt: Date
+  isBotGame?: boolean
+  botDifficulty?: BotDifficulty
 }
 
 class GameManager {
@@ -25,21 +30,23 @@ class GameManager {
   /**
    * Create a new game for a room
    */
-  createGame(roomId: string): void {
+  createGame(roomId: string, isBotGame?: boolean, botDifficulty?: BotDifficulty): void {
     if (!this.games.has(roomId)) {
       this.games.set(roomId, {
         chess: new Chess(),
         players: {},
-        createdAt: new Date()
+        createdAt: new Date(),
+        isBotGame: isBotGame || false,
+        botDifficulty: botDifficulty || BotDifficulty.MEDIUM
       })
-      console.log(`[GameManager] Created new game for room: ${roomId}`)
+      console.log(`[GameManager] Created new game for room: ${roomId}${isBotGame ? ' (vs Bot)' : ''}`)
     }
   }
 
   /**
    * Add a player to a room
    */
-  addPlayer(roomId: string, playerId: string, userId?: string): { color: 'white' | 'black' | null } {
+  addPlayer(roomId: string, playerId: string, userId?: string, isBot?: boolean): { color: 'white' | 'black' | null } {
     const game = this.games.get(roomId)
     if (!game) {
       return { color: null }
@@ -47,12 +54,12 @@ class GameManager {
 
     // Assign player to first available color
     if (!game.players.white) {
-      game.players.white = { socketId: playerId, userId }
-      console.log(`[GameManager] Player ${playerId} (user: ${userId}) assigned as white in room ${roomId}`)
+      game.players.white = { socketId: playerId, userId, isBot }
+      console.log(`[GameManager] Player ${playerId} (user: ${userId}${isBot ? ' - BOT' : ''}) assigned as white in room ${roomId}`)
       return { color: 'white' }
     } else if (!game.players.black) {
-      game.players.black = { socketId: playerId, userId }
-      console.log(`[GameManager] Player ${playerId} (user: ${userId}) assigned as black in room ${roomId}`)
+      game.players.black = { socketId: playerId, userId, isBot }
+      console.log(`[GameManager] Player ${playerId} (user: ${userId}${isBot ? ' - BOT' : ''}) assigned as black in room ${roomId}`)
       return { color: 'black' }
     }
 
@@ -131,7 +138,9 @@ class GameManager {
         white: game.players.white?.socketId,
         black: game.players.black?.socketId,
       },
-      playerData: game.players
+      playerData: game.players,
+      isBotGame: game.isBotGame,
+      botDifficulty: game.botDifficulty
     }
   }
 
@@ -184,6 +193,30 @@ class GameManager {
       delete game.players.black
       console.log(`[GameManager] Removed black player ${playerId} from room ${roomId}`)
     }
+  }
+
+  /**
+   * Check if a game is a bot game
+   */
+  isBotGame(roomId: string): boolean {
+    const game = this.games.get(roomId)
+    return game?.isBotGame || false
+  }
+
+  /**
+   * Get bot difficulty for a game
+   */
+  getBotDifficulty(roomId: string): BotDifficulty | undefined {
+    const game = this.games.get(roomId)
+    return game?.botDifficulty
+  }
+
+  /**
+   * Get the Chess instance for a room (for bot move calculation)
+   */
+  getChessInstance(roomId: string): Chess | null {
+    const game = this.games.get(roomId)
+    return game?.chess || null
   }
 }
 

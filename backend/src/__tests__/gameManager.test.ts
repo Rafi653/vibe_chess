@@ -328,4 +328,82 @@ describe('GameManager', () => {
       expect(gameManager.hasGame(testRoomId)).toBe(false);
     });
   });
+
+  describe('Bot Game Support', () => {
+    const botRoomId = 'bot-room-123';
+
+    afterEach(() => {
+      if (gameManager.hasGame(botRoomId)) {
+        gameManager.removeGame(botRoomId);
+      }
+    });
+
+    it('should create a bot game', () => {
+      gameManager.createGame(botRoomId, true, 'medium' as any);
+      expect(gameManager.hasGame(botRoomId)).toBe(true);
+      expect(gameManager.isBotGame(botRoomId)).toBe(true);
+    });
+
+    it('should store bot difficulty', () => {
+      gameManager.createGame(botRoomId, true, 'hard' as any);
+      const difficulty = gameManager.getBotDifficulty(botRoomId);
+      expect(difficulty).toBe('hard');
+    });
+
+    it('should add bot player correctly', () => {
+      gameManager.createGame(botRoomId, true, 'medium' as any);
+      gameManager.addPlayer(botRoomId, player1Id, 'user1', false);
+      gameManager.addPlayer(botRoomId, 'bot-player', 'Bot', true);
+      
+      const state = gameManager.getState(botRoomId);
+      expect(state.playerData.white?.isBot).toBe(false);
+      expect(state.playerData.black?.isBot).toBe(true);
+    });
+
+    it('should include bot game info in game state', () => {
+      gameManager.createGame(botRoomId, true, 'easy' as any);
+      const state = gameManager.getState(botRoomId);
+      
+      expect(state.isBotGame).toBe(true);
+      expect(state.botDifficulty).toBe('easy');
+    });
+
+    it('should allow bot to make moves', () => {
+      gameManager.createGame(botRoomId, true, 'medium' as any);
+      gameManager.addPlayer(botRoomId, player1Id, 'user1', false);
+      gameManager.addPlayer(botRoomId, 'bot-player', 'Bot', true);
+      
+      // Human player makes a move
+      const humanMove = gameManager.makeMove(botRoomId, player1Id, { from: 'e2', to: 'e4' });
+      expect(humanMove.success).toBe(true);
+      
+      // Bot makes a move
+      const botMove = gameManager.makeMove(botRoomId, 'bot-player', { from: 'e7', to: 'e5' });
+      expect(botMove.success).toBe(true);
+    });
+
+    it('should get chess instance for bot move calculation', () => {
+      gameManager.createGame(botRoomId, true, 'medium' as any);
+      const chess = gameManager.getChessInstance(botRoomId);
+      
+      expect(chess).toBeDefined();
+      expect(chess?.fen()).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+    });
+
+    it('should return null chess instance for non-existent game', () => {
+      const chess = gameManager.getChessInstance('non-existent-room');
+      expect(chess).toBeNull();
+    });
+
+    it('should return false for isBotGame on regular games', () => {
+      gameManager.createGame(testRoomId, false);
+      expect(gameManager.isBotGame(testRoomId)).toBe(false);
+    });
+
+    it('should return default difficulty for regular games', () => {
+      gameManager.createGame(testRoomId, false);
+      const difficulty = gameManager.getBotDifficulty(testRoomId);
+      expect(difficulty).toBe('medium'); // Default difficulty is still stored
+    });
+  });
 });

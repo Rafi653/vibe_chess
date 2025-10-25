@@ -5,7 +5,7 @@ import useUserStore from '../store/userStore';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 
-const useSocket = (roomId) => {
+const useSocket = (roomId, isBotGame = false, botDifficulty = 'medium') => {
   const socketRef = useRef(null);
   const {
     setConnected,
@@ -38,7 +38,9 @@ const useSocket = (roomId) => {
       socket.emit('joinRoom', { 
         roomId, 
         playerId,
-        userId: user?.id 
+        userId: user?.id,
+        isBotGame,
+        botDifficulty
       });
     });
 
@@ -90,7 +92,7 @@ const useSocket = (roomId) => {
       console.log('Cleaning up socket connection');
       socket.disconnect();
     };
-  }, [roomId, setConnected, setPlayerId, setPlayerColor, updateGameState, setPlayers, user]);
+  }, [roomId, isBotGame, botDifficulty, setConnected, setPlayerId, setPlayerColor, updateGameState, setPlayers, user]);
 
   const emitMove = (move) => {
     if (socketRef.current && roomId) {

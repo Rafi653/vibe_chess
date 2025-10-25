@@ -31,6 +31,10 @@ const useGameStore = create((set, get) => ({
   // Connection state
   connected: false,
   
+  // Bot game state
+  isBotGame: false,
+  botDifficulty: 'medium',
+  
   // Game info
   gameStatus: 'waiting', // 'waiting', 'playing', 'finished'
   players: {
@@ -55,6 +59,10 @@ const useGameStore = create((set, get) => ({
   setGameStatus: (status) => set({ gameStatus: status }),
   
   setPlayers: (players) => set({ players }),
+  
+  setIsBotGame: (isBotGame) => set({ isBotGame }),
+  
+  setBotDifficulty: (difficulty) => set({ botDifficulty: difficulty }),
   
   updateGameState: (gameState) => {
     const { chess } = get();
@@ -85,6 +93,8 @@ const useGameStore = create((set, get) => ({
       playerData, // Store the full player data with user IDs
       moveHistory: history,
       capturedPieces,
+      isBotGame: gameState.isBotGame || get().isBotGame,
+      botDifficulty: gameState.botDifficulty || get().botDifficulty,
     });
     
     // Update game status

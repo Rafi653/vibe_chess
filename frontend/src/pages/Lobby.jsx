@@ -4,11 +4,18 @@ import { useNavigate, Link } from 'react-router-dom';
 
 function Lobby() {
   const [roomId, setRoomId] = useState('');
+  const [showBotOptions, setShowBotOptions] = useState(false);
+  const [botDifficulty, setBotDifficulty] = useState('medium');
   const navigate = useNavigate();
 
   const handleCreateGame = () => {
     const newRoomId = crypto.randomUUID();
     navigate(`/game/${newRoomId}`);
+  };
+
+  const handleCreateBotGame = () => {
+    const newRoomId = `bot-${crypto.randomUUID()}`;
+    navigate(`/game/${newRoomId}?bot=true&difficulty=${botDifficulty}`);
   };
 
   const handleJoinGame = (e) => {
@@ -44,6 +51,78 @@ function Lobby() {
             >
               Create Game
             </button>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-8 mb-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+              🤖 Play vs Bot
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Challenge a chess bot with different difficulty levels
+            </p>
+            
+            {!showBotOptions ? (
+              <button
+                onClick={() => setShowBotOptions(true)}
+                className="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+              >
+                Play vs Bot
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Difficulty:
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => setBotDifficulty('easy')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        botDifficulty === 'easy'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      Easy
+                    </button>
+                    <button
+                      onClick={() => setBotDifficulty('medium')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        botDifficulty === 'medium'
+                          ? 'bg-yellow-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      Medium
+                    </button>
+                    <button
+                      onClick={() => setBotDifficulty('hard')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        botDifficulty === 'hard'
+                          ? 'bg-red-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      Hard
+                    </button>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleCreateBotGame}
+                    className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                  >
+                    Start Bot Game
+                  </button>
+                  <button
+                    onClick={() => setShowBotOptions(false)}
+                    className="px-6 py-3 rounded-lg font-semibold bg-gray-300 text-gray-700 hover:bg-gray-400 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-8">
