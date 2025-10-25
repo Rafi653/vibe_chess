@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import useGameStore from '../store/gameStore';
+import useUserStore from '../store/userStore';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 
@@ -13,6 +14,7 @@ const useSocket = (roomId) => {
     updateGameState,
     setPlayers,
   } = useGameStore();
+  const { user } = useUserStore();
 
   useEffect(() => {
     if (!roomId) return;
@@ -29,11 +31,15 @@ const useSocket = (roomId) => {
       console.log('Connected to socket server:', socket.id);
       setConnected(true);
 
-      // Join the room
+      // Join the room with user ID if authenticated
       const playerId = socket.id;
       setPlayerId(playerId);
       
-      socket.emit('joinRoom', { roomId, playerId });
+      socket.emit('joinRoom', { 
+        roomId, 
+        playerId,
+        userId: user?.id 
+      });
     });
 
     socket.on('disconnect', () => {
@@ -84,7 +90,7 @@ const useSocket = (roomId) => {
       console.log('Cleaning up socket connection');
       socket.disconnect();
     };
-  }, [roomId, setConnected, setPlayerId, setPlayerColor, updateGameState, setPlayers]);
+  }, [roomId, setConnected, setPlayerId, setPlayerColor, updateGameState, setPlayers, user]);
 
   const emitMove = (move) => {
     if (socketRef.current && roomId) {

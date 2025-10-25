@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import useGameStore from '../../store/gameStore';
+import useUserStore from '../../store/userStore';
 
 const GameInfo = ({ onReset }) => {
   const { 
@@ -10,11 +12,32 @@ const GameInfo = ({ onReset }) => {
     winner,
     players,
     connected,
+    saveGameToBackend,
+    gameSaved,
   } = useGameStore();
+  
+  const { isAuthenticated } = useUserStore();
+  const [saveMessage, setSaveMessage] = useState('');
 
   const isMyTurn = 
     (playerColor === 'white' && currentTurn === 'w') ||
     (playerColor === 'black' && currentTurn === 'b');
+
+  // Auto-save game when it's over (if authenticated)
+  useEffect(() => {
+    if (gameOver && !gameSaved && isAuthenticated) {
+      const saveGame = async () => {
+        const result = await saveGameToBackend();
+        if (result.success) {
+          setSaveMessage('✓ Game saved to history');
+          setTimeout(() => setSaveMessage(''), 3000);
+        } else if (result.error && !result.error.includes('already saved')) {
+          console.log('Could not save game:', result.error);
+        }
+      };
+      saveGame();
+    }
+  }, [gameOver, gameSaved, isAuthenticated, saveGameToBackend]);
 
   const getStatusMessage = () => {
     if (!connected) {
@@ -76,6 +99,12 @@ const GameInfo = ({ onReset }) => {
           <div className="text-xs text-gray-500 text-center mb-3">
             <div>White: {players.white || 'Waiting...'}</div>
             <div>Black: {players.black || 'Waiting...'}</div>
+          </div>
+        )}
+
+        {saveMessage && (
+          <div className="text-xs text-green-600 text-center mb-3">
+            {saveMessage}
           </div>
         )}
       </div>

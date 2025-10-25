@@ -98,7 +98,7 @@ io.on('connection', (socket) => {
   })
 
   // Join room event
-  socket.on('joinRoom', ({ roomId, playerId }) => {
+  socket.on('joinRoom', ({ roomId, playerId, userId }) => {
     if (!roomId) {
       socket.emit('error', { message: 'Room ID is required' })
       return
@@ -106,15 +106,15 @@ io.on('connection', (socket) => {
 
     // Join the socket room
     socket.join(roomId)
-    console.log(`[Socket.IO] Player ${playerId || socket.id} joined room: ${roomId}`)
+    console.log(`[Socket.IO] Player ${playerId || socket.id} (user: ${userId}) joined room: ${roomId}`)
 
     // Create game if it doesn't exist
     if (!gameManager.hasGame(roomId)) {
       gameManager.createGame(roomId)
     }
 
-    // Add player to the game
-    const result = gameManager.addPlayer(roomId, playerId || socket.id)
+    // Add player to the game with user ID
+    const result = gameManager.addPlayer(roomId, playerId || socket.id, userId)
     const gameState = gameManager.getState(roomId)
 
     // Notify the player

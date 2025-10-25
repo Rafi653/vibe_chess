@@ -3,8 +3,14 @@ import { Chess } from 'chess.js'
 interface GameState {
   chess: Chess
   players: {
-    white?: string
-    black?: string
+    white?: {
+      socketId: string
+      userId?: string
+    }
+    black?: {
+      socketId: string
+      userId?: string
+    }
   }
   createdAt: Date
 }
@@ -33,7 +39,7 @@ class GameManager {
   /**
    * Add a player to a room
    */
-  addPlayer(roomId: string, playerId: string): { color: 'white' | 'black' | null } {
+  addPlayer(roomId: string, playerId: string, userId?: string): { color: 'white' | 'black' | null } {
     const game = this.games.get(roomId)
     if (!game) {
       return { color: null }
@@ -41,12 +47,12 @@ class GameManager {
 
     // Assign player to first available color
     if (!game.players.white) {
-      game.players.white = playerId
-      console.log(`[GameManager] Player ${playerId} assigned as white in room ${roomId}`)
+      game.players.white = { socketId: playerId, userId }
+      console.log(`[GameManager] Player ${playerId} (user: ${userId}) assigned as white in room ${roomId}`)
       return { color: 'white' }
     } else if (!game.players.black) {
-      game.players.black = playerId
-      console.log(`[GameManager] Player ${playerId} assigned as black in room ${roomId}`)
+      game.players.black = { socketId: playerId, userId }
+      console.log(`[GameManager] Player ${playerId} (user: ${userId}) assigned as black in room ${roomId}`)
       return { color: 'black' }
     }
 
@@ -69,8 +75,8 @@ class GameManager {
 
     // Check if it's the player's turn
     const currentTurn = game.chess.turn()
-    const playerColor = game.players.white === playerId ? 'white' : 
-                       game.players.black === playerId ? 'black' : null
+    const playerColor = game.players.white?.socketId === playerId ? 'white' : 
+                       game.players.black?.socketId === playerId ? 'black' : null
 
     if (!playerColor) {
       return { success: false, error: 'Player not in this game' }
@@ -121,7 +127,11 @@ class GameManager {
       isInsufficientMaterial: game.chess.isInsufficientMaterial(),
       moves: game.chess.moves(),
       history: game.chess.history(),
-      players: game.players
+      players: {
+        white: game.players.white?.socketId,
+        black: game.players.black?.socketId,
+      },
+      playerData: game.players
     }
   }
 
@@ -166,11 +176,11 @@ class GameManager {
       return
     }
 
-    if (game.players.white === playerId) {
+    if (game.players.white?.socketId === playerId) {
       delete game.players.white
       console.log(`[GameManager] Removed white player ${playerId} from room ${roomId}`)
     }
-    if (game.players.black === playerId) {
+    if (game.players.black?.socketId === playerId) {
       delete game.players.black
       console.log(`[GameManager] Removed black player ${playerId} from room ${roomId}`)
     }
