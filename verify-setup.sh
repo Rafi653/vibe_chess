@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e  # Exit on any command failure
+
 # Verification script for Docker setup
 
 echo "=== Vibe Chess Docker Setup Verification ==="
@@ -21,11 +23,11 @@ curl -s http://localhost:5173 | head -10
 echo ""
 
 echo "5. Checking Backend logs (last 5 lines)..."
-docker logs vibe-chess-backend 2>&1 | tail -5
+docker compose logs backend --tail=5
 echo ""
 
 echo "6. Checking Frontend logs (last 5 lines)..."
-docker logs vibe-chess-frontend 2>&1 | tail -5
+docker compose logs frontend --tail=5
 echo ""
 
 echo "=== Verification Complete ==="
