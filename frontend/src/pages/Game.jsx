@@ -84,8 +84,10 @@ function Game() {
     }
   };
 
-  // Determine opponent color
-  const opponentColor = playerColor === 'white' ? 'black' : playerColor === 'black' ? 'white' : null;
+  // Determine opponent color and player color for mobile display
+  // Default to showing white as player and black as opponent if not set
+  const displayPlayerColor = playerColor || 'white';
+  const opponentColor = displayPlayerColor === 'white' ? 'black' : 'white';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
@@ -93,7 +95,7 @@ function Game() {
       {isMobileView ? (
         <div className="flex flex-col h-screen">
           {/* Header - Opponent's Info */}
-          {opponentColor && <MobilePlayerBar color={opponentColor} isOpponent={true} />}
+          <MobilePlayerBar color={opponentColor} isOpponent={true} />
           
           {/* Central Chess Board */}
           <div className="flex-1 flex items-center justify-center p-2 overflow-hidden">
@@ -103,7 +105,7 @@ function Game() {
           </div>
           
           {/* Footer - Player's Info */}
-          {playerColor && <MobilePlayerBar color={playerColor} isOpponent={false} />}
+          <MobilePlayerBar color={displayPlayerColor} isOpponent={false} />
           
           {/* Floating Action Buttons */}
           <ShareInviteActions 
