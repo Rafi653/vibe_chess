@@ -8,8 +8,8 @@ const pieceSymbols = {
 const Piece = ({ piece, position, playerColor, currentTurn }) => {
   const pieceColor = piece[0];
   const canDrag = 
-    playerColor === 'white' && pieceColor === 'w' && currentTurn === 'w' ||
-    playerColor === 'black' && pieceColor === 'b' && currentTurn === 'b';
+    (playerColor === 'white' && pieceColor === 'w' && currentTurn === 'w') ||
+    (playerColor === 'black' && pieceColor === 'b' && currentTurn === 'b');
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'piece',

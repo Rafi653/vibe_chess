@@ -43,11 +43,18 @@ const useGameStore = create((set, get) => ({
     // Load the new position
     chess.load(gameState.fen);
     
+    // Determine winner: if game is over and it's checkmate,
+    // the player whose turn it is has lost (they can't move)
+    let winner = null;
+    if (gameState.isCheckmate) {
+      winner = gameState.turn === 'w' ? 'black' : 'white';
+    }
+    
     set({
       fen: gameState.fen,
       currentTurn: gameState.turn,
       gameOver: gameState.isGameOver,
-      winner: gameState.isCheckmate ? (gameState.turn === 'w' ? 'black' : 'white') : null,
+      winner,
       players: gameState.players || get().players,
     });
     
