@@ -201,11 +201,7 @@ Configuration files for ESLint and Prettier are included:
 - `.eslintrc` - Linting rules
 - `.prettierrc` - Code formatting rules
 
-Run linting:
-```bash
-# In backend or frontend directory
-npm run lint  # (if configured)
-```
+> **Note**: Linting scripts can be added to package.json as needed. The configuration files are ready to use.
 
 ## API Documentation
 
