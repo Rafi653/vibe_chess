@@ -7,6 +7,7 @@ import { gameManager } from './gameManager'
 import { connectDatabase } from './config/database'
 import authRoutes from './routes/auth'
 import gameHistoryRoutes from './routes/gameHistory'
+import friendsRoutes from './routes/friends'
 
 // Load environment variables
 dotenv.config()
@@ -40,6 +41,9 @@ app.use('/api/auth', authRoutes)
 
 // Game history routes
 app.use('/api/games', gameHistoryRoutes)
+
+// Friends routes
+app.use('/api/friends', friendsRoutes)
 
 // Room management routes
 app.post('/create-room', (req: Request, res: Response) => {

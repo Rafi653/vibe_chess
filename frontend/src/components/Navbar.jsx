@@ -39,6 +39,12 @@ function Navbar() {
                   My Games
                 </Link>
                 <Link
+                  to="/friends"
+                  className="text-gray-700 hover:text-purple-600 transition-colors"
+                >
+                  Friends
+                </Link>
+                <Link
                   to="/profile"
                   className="text-gray-700 hover:text-purple-600 transition-colors"
                 >

@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import GameHistoryPage from './pages/GameHistoryPage';
+import Friends from './pages/Friends';
 import useUserStore from './store/userStore';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path="/saved-games" element={<SavedGamesPage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/game-history" element={<GameHistoryPage />} />
+            <Route path="/friends" element={<Friends />} />
           </Route>
         </Routes>
       </div>

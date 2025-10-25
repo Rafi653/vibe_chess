@@ -81,4 +81,44 @@ export const gameHistoryAPI = {
   },
 };
 
+// Friends API
+export const friendsAPI = {
+  sendRequest: async (recipientId) => {
+    const response = await api.post('/api/friends/request', { recipientId });
+    return response.data;
+  },
+
+  acceptRequest: async (friendshipId) => {
+    const response = await api.post(`/api/friends/accept/${friendshipId}`);
+    return response.data;
+  },
+
+  declineRequest: async (friendshipId) => {
+    const response = await api.post(`/api/friends/decline/${friendshipId}`);
+    return response.data;
+  },
+
+  getFriends: async () => {
+    const response = await api.get('/api/friends');
+    return response.data;
+  },
+
+  getRequests: async () => {
+    const response = await api.get('/api/friends/requests');
+    return response.data;
+  },
+
+  removeFriend: async (friendId) => {
+    const response = await api.delete(`/api/friends/${friendId}`);
+    return response.data;
+  },
+
+  searchUsers: async (query) => {
+    const response = await api.get('/api/friends/search', {
+      params: { query },
+    });
+    return response.data;
+  },
+};
+
 export default api;
