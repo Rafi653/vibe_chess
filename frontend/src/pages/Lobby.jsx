@@ -7,7 +7,7 @@ function Lobby() {
   const navigate = useNavigate();
 
   const handleCreateGame = () => {
-    const newRoomId = Math.random().toString(36).substring(2, 9);
+    const newRoomId = crypto.randomUUID();
     navigate(`/game/${newRoomId}`);
   };
 
