@@ -16,6 +16,12 @@ yarn.lock
 # Build outputs
 dist/
 build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
 *.log
 
 # IDE and editor files
@@ -24,6 +30,13 @@ build/
 *.swp
 *.swo
 *~
+
+# Docker
+.dockerignore
+
+# Logs
+logs/
+*.log
 .DS_Store
 
 # Testing
