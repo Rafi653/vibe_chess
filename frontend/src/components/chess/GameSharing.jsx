@@ -5,6 +5,7 @@ const GameSharing = () => {
   const { chess, roomId, moveHistory } = useGameStore();
   const [copied, setCopied] = useState(false);
   const [pgnCopied, setPgnCopied] = useState(false);
+  const [gameSaved, setGameSaved] = useState(false);
 
   const handleCopyRoomLink = () => {
     const roomUrl = `${window.location.origin}/game/${roomId}`;
@@ -54,7 +55,8 @@ const GameSharing = () => {
     }
     
     localStorage.setItem('chess_saved_games', JSON.stringify(savedGames));
-    alert('Game saved successfully!');
+    setGameSaved(true);
+    setTimeout(() => setGameSaved(false), 2000);
   };
 
   return (
@@ -93,7 +95,7 @@ const GameSharing = () => {
               onClick={handleSaveGame}
               className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
             >
-              🎮 Save Game
+              {gameSaved ? '✓ Saved!' : '🎮 Save Game'}
             </button>
           </>
         )}

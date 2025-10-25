@@ -1,6 +1,18 @@
 import { create } from 'zustand';
 import { Chess } from 'chess.js';
 
+// Helper function to calculate captured pieces from move history
+const calculateCapturedPieces = (history) => {
+  const capturedPieces = { white: [], black: [] };
+  history.forEach((move) => {
+    if (move.captured) {
+      const capturedBy = move.color === 'w' ? 'white' : 'black';
+      capturedPieces[capturedBy].push(move.captured);
+    }
+  });
+  return capturedPieces;
+};
+
 const useGameStore = create((set, get) => ({
   // Game state
   chess: new Chess(),
@@ -54,17 +66,9 @@ const useGameStore = create((set, get) => ({
       winner = gameState.turn === 'w' ? 'black' : 'white';
     }
     
-    // Update move history
+    // Update move history and calculate captured pieces
     const history = chess.history({ verbose: true });
-    
-    // Calculate captured pieces
-    const capturedPieces = { white: [], black: [] };
-    history.forEach((move) => {
-      if (move.captured) {
-        const capturedBy = move.color === 'w' ? 'white' : 'black';
-        capturedPieces[capturedBy].push(move.captured);
-      }
-    });
+    const capturedPieces = calculateCapturedPieces(history);
     
     set({
       fen: gameState.fen,
@@ -102,17 +106,9 @@ const useGameStore = create((set, get) => ({
       });
       
       if (move) {
-        // Update move history
+        // Update move history and calculate captured pieces
         const history = chess.history({ verbose: true });
-        
-        // Calculate captured pieces
-        const capturedPieces = { white: [], black: [] };
-        history.forEach((m) => {
-          if (m.captured) {
-            const capturedBy = m.color === 'w' ? 'white' : 'black';
-            capturedPieces[capturedBy].push(m.captured);
-          }
-        });
+        const capturedPieces = calculateCapturedPieces(history);
         
         // Update local state optimistically
         set({

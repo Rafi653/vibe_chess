@@ -32,8 +32,8 @@ const SavedGames = () => {
   };
 
   const handleViewGame = (game) => {
-    // Store the game data to be loaded
-    localStorage.setItem('chess_game_to_load', JSON.stringify(game));
+    // Currently just for viewing inline PGN
+    // Future: Could navigate to a replay page
   };
 
   return (
@@ -66,28 +66,20 @@ const SavedGames = () => {
                     {formatDate(game.timestamp)}
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleViewGame(game)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    View PGN
-                  </button>
-                  <button
-                    onClick={() => handleDeleteGame(index)}
-                    className="text-red-600 hover:text-red-800 text-sm font-medium"
-                  >
-                    Delete
-                  </button>
-                </div>
               </div>
-              <div className="text-sm text-gray-600">
-                {game.moveHistory?.length || 0} moves
+              <div className="text-sm text-gray-600 mb-2 flex justify-between items-center">
+                <span>{game.moveHistory?.length || 0} moves</span>
+                <button
+                  onClick={() => handleDeleteGame(index)}
+                  className="text-red-600 hover:text-red-800 text-sm font-medium"
+                >
+                  Delete
+                </button>
               </div>
               {game.pgn && (
                 <details className="mt-2">
                   <summary className="text-xs text-blue-600 cursor-pointer hover:text-blue-800">
-                    View PGN
+                    Show PGN
                   </summary>
                   <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-x-auto">
                     {game.pgn}
