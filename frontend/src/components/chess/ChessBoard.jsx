@@ -76,7 +76,7 @@ const ChessBoard = ({ onMove }) => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="inline-block border-4 border-gray-800 shadow-2xl">
-        <div className="grid grid-rows-8 w-[480px] h-[480px]">
+        <div className="grid grid-rows-8 w-full max-w-[480px] h-auto aspect-square sm:w-[480px] sm:h-[480px]">
           {renderBoard()}
         </div>
       </div>
