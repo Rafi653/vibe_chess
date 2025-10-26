@@ -232,7 +232,7 @@ Our implementation follows these same principles with:
 
 Potential improvements for the bot system:
 
-1. **Bot strength variation**: Add more difficulty levels or Elo-based strength
+1. **Bot strength variation**: Add more difficulty levels or Elo-based strength (Elo is a chess rating system where higher numbers indicate stronger players, e.g., 1200 for beginners, 2000 for advanced)
 2. **Opening books**: Use pre-defined opening moves for better play
 3. **Endgame tablebases**: Perfect play in endgame positions
 4. **Analysis mode**: Allow users to analyze games with bot assistance
