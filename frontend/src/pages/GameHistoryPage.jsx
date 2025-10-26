@@ -5,7 +5,7 @@ import useUserStore from '../store/userStore';
 import { gameHistoryAPI } from '../services/api';
 
 function GameHistoryPage() {
-  const { user, isAuthenticated } = useUserStore();
+  const { user, isAuthenticated, isGuest } = useUserStore();
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState(null);
@@ -14,6 +14,8 @@ function GameHistoryPage() {
   useEffect(() => {
     if (isAuthenticated) {
       loadGames(currentPage);
+    } else {
+      setLoading(false);
     }
   }, [isAuthenticated, currentPage]);
 
@@ -77,11 +79,27 @@ function GameHistoryPage() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please log in to view your game history</p>
-          <Link to="/login" className="text-purple-600 hover:text-purple-800 font-semibold">
-            Go to Login
-          </Link>
+        <div className="text-center bg-white p-8 rounded-lg shadow-md max-w-md">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Game History Unavailable</h2>
+          <p className="text-gray-600 mb-6">
+            {isGuest 
+              ? "Guest players can't view game history. Create an account to save and review your games!"
+              : "Please log in to view your game history"}
+          </p>
+          <div className="space-x-4">
+            <Link 
+              to="/login" 
+              className="inline-block bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+            >
+              Login
+            </Link>
+            <Link 
+              to="/register" 
+              className="inline-block bg-white text-purple-600 px-6 py-2 rounded-lg font-semibold border-2 border-purple-600 hover:bg-purple-50 transition-colors"
+            >
+              Sign Up
+            </Link>
+          </div>
         </div>
       </div>
     );

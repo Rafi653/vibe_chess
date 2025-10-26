@@ -5,7 +5,7 @@ import useUserStore from '../store/userStore';
 import { friendsAPI } from '../services/api';
 
 function Friends() {
-  const { isAuthenticated } = useUserStore();
+  const { isAuthenticated, isGuest } = useUserStore();
   const [friends, setFriends] = useState([]);
   const [requests, setRequests] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,6 +18,8 @@ function Friends() {
     if (isAuthenticated) {
       loadFriends();
       loadRequests();
+    } else {
+      setLoading(false);
     }
   }, [isAuthenticated]);
 
@@ -107,11 +109,27 @@ function Friends() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please log in to view friends</p>
-          <Link to="/login" className="text-purple-600 hover:text-purple-800 font-semibold">
-            Go to Login
-          </Link>
+        <div className="text-center bg-white p-8 rounded-lg shadow-md max-w-md">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Friends Unavailable</h2>
+          <p className="text-gray-600 mb-6">
+            {isGuest 
+              ? "Guest players can't add friends. Create an account to connect with other players!"
+              : "Please log in to view your friends"}
+          </p>
+          <div className="space-x-4">
+            <Link 
+              to="/login" 
+              className="inline-block bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+            >
+              Login
+            </Link>
+            <Link 
+              to="/register" 
+              className="inline-block bg-white text-purple-600 px-6 py-2 rounded-lg font-semibold border-2 border-purple-600 hover:bg-purple-50 transition-colors"
+            >
+              Sign Up
+            </Link>
+          </div>
         </div>
       </div>
     );

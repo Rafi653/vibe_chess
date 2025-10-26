@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import useUserStore from '../store/userStore';
 
 function Profile() {
-  const { user, updateProfile, loading } = useUserStore();
+  const { user, isGuest, updateProfile, loading } = useUserStore();
   const [username, setUsername] = useState('');
   const [avatar, setAvatar] = useState('');
   const [editing, setEditing] = useState(false);
@@ -27,14 +27,30 @@ function Profile() {
     }
   };
 
-  if (!user) {
+  if (!user || isGuest) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please log in to view your profile</p>
-          <Link to="/login" className="text-purple-600 hover:text-purple-800 font-semibold">
-            Go to Login
-          </Link>
+        <div className="text-center bg-white p-8 rounded-lg shadow-md max-w-md">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Profile Unavailable</h2>
+          <p className="text-gray-600 mb-6">
+            {isGuest 
+              ? "Guest players don't have profiles. Create an account to track your stats and customize your profile!"
+              : "Please log in to view your profile"}
+          </p>
+          <div className="space-x-4">
+            <Link 
+              to="/login" 
+              className="inline-block bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+            >
+              Login
+            </Link>
+            <Link 
+              to="/register" 
+              className="inline-block bg-white text-purple-600 px-6 py-2 rounded-lg font-semibold border-2 border-purple-600 hover:bg-purple-50 transition-colors"
+            >
+              Sign Up
+            </Link>
+          </div>
         </div>
       </div>
     );

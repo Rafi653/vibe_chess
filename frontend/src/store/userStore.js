@@ -6,6 +6,7 @@ const useUserStore = create((set) => ({
   user: null,
   token: localStorage.getItem('auth_token') || null,
   isAuthenticated: false,
+  isGuest: false,
   loading: false,
   error: null,
 
@@ -53,6 +54,19 @@ const useUserStore = create((set) => ({
     set({
       user: null,
       token: null,
+      isAuthenticated: false,
+      isGuest: false,
+    });
+  },
+
+  // Guest mode
+  setGuestMode: () => {
+    set({
+      user: {
+        username: 'Guest',
+        id: `guest-${Date.now()}`,
+      },
+      isGuest: true,
       isAuthenticated: false,
     });
   },
