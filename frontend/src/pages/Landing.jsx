@@ -1,9 +1,15 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useUserStore from '../store/userStore';
 
 function Landing() {
-  const { isAuthenticated, user } = useUserStore();
+  const { isAuthenticated, user, setGuestMode } = useUserStore();
+  const navigate = useNavigate();
+
+  const handlePlayAsGuest = () => {
+    setGuestMode();
+    navigate('/lobby');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
@@ -33,6 +39,12 @@ function Landing() {
           </Link>
           {!isAuthenticated && (
             <>
+              <button
+                onClick={handlePlayAsGuest}
+                className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors border-2 border-white"
+              >
+                Play as Guest
+              </button>
               <Link
                 to="/login"
                 className="inline-block bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors border-2 border-white"

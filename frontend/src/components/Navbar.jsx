@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import useUserStore from '../store/userStore';
 
 function Navbar() {
-  const { user, isAuthenticated, logout } = useUserStore();
+  const { user, isAuthenticated, isGuest, logout } = useUserStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -70,6 +70,21 @@ function Navbar() {
                 >
                   Logout
                 </button>
+              </>
+            ) : isGuest ? (
+              <>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-sm font-bold text-green-700">
+                    G
+                  </div>
+                  <span className="text-gray-700">Guest</span>
+                </div>
+                <Link
+                  to="/login"
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  Login to Save Games
+                </Link>
               </>
             ) : (
               <>
