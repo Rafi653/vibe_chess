@@ -6,6 +6,7 @@ A modern web-based chess application with user profiles, game tracking, and soci
 
 ### 🎮 Core Chess Gameplay
 - Real-time multiplayer chess using WebSocket (Socket.IO)
+- **Guest play mode - no account required to start playing!**
 - **Single-player mode vs AI bot with difficulty levels (Easy, Medium, Hard)**
 - Drag-and-drop piece movement
 - Move validation and game state management
@@ -13,6 +14,7 @@ A modern web-based chess application with user profiles, game tracking, and soci
 - Move history and captured pieces display
 
 ### 👤 User Profile System
+- **Guest mode for quick play without registration**
 - User registration and authentication (JWT-based)
 - Customizable user profiles with avatars
 - Personal statistics tracking:
@@ -286,6 +288,23 @@ Configuration files for ESLint and Prettier are included:
 
 ## Usage Guide
 
+### Quick Start - Play as Guest
+
+Want to try the app without creating an account? It's easy!
+
+1. Navigate to the application homepage
+2. Click "Play as Guest"
+3. You're now in the lobby and ready to play!
+4. As a guest, you can:
+   - ✅ Create and join multiplayer games
+   - ✅ Play against the AI bot
+   - ✅ Share room links with friends
+   - ❌ Save game history (requires account)
+   - ❌ Track statistics (requires account)
+   - ❌ Add friends (requires account)
+
+**Note**: Guest games are not saved to your profile. Create an account to track your progress and access all features!
+
 ### Creating an Account
 
 1. Navigate to the application homepage
@@ -296,17 +315,21 @@ Configuration files for ESLint and Prettier are included:
 ### Playing a Game
 
 #### Multiplayer Mode
-1. Log in to your account
+1. From the homepage, either:
+   - Log in to your account, OR
+   - Click "Play as Guest"
 2. Click "Enter Lobby"
 3. Either:
    - Click "Create Game" to start a new game
    - Enter a Room ID to join an existing game
 4. Share the Room ID with your opponent
 5. Play chess by dragging pieces
-6. Games are automatically saved when completed
+6. Games are automatically saved when completed (authenticated users only)
 
 #### Single-Player Mode (vs Bot)
-1. Log in to your account
+1. From the homepage, either:
+   - Log in to your account, OR
+   - Click "Play as Guest"
 2. Click "Enter Lobby"
 3. Click "Play vs Bot"
 4. Select difficulty level:
