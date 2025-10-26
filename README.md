@@ -8,6 +8,7 @@ A modern web-based chess application with user profiles, game tracking, and soci
 - Real-time multiplayer chess using WebSocket (Socket.IO)
 - **Guest play mode - no account required to start playing!**
 - **Single-player mode vs AI bot with difficulty levels (Easy, Medium, Hard)**
+- **Supports multiple parallel bot sessions** - many users can play against bots simultaneously
 - Drag-and-drop piece movement
 - Move validation and game state management
 - Check, checkmate, and stalemate detection
@@ -394,18 +395,46 @@ The bot opponent uses a custom JavaScript-based chess engine with the following 
 #### Testing
 - 22 comprehensive bot logic tests
 - 10 bot integration tests with GameManager
+- 10 parallel bot session tests (new)
 - Edge case coverage: checkmate, stalemate, promotion, castling
-- All tests passing (64 backend tests total)
+- All tests passing (74 backend tests total)
+
+### Parallel Bot Sessions
+
+The system supports **multiple users playing against bots simultaneously** with:
+
+#### Architecture
+- **Complete Game Isolation**: Each bot game runs independently in its own room
+- **Robust Timeout Management**: Automatic cleanup of pending bot moves
+- **Error Handling**: Comprehensive try-catch blocks and validation
+- **Scalability**: Can handle hundreds of parallel bot sessions
+
+#### Key Features
+- ✅ Multiple users can play against bots at the same time
+- ✅ Each game maintains independent state (position, history, difficulty)
+- ✅ Bot moves are calculated per-game based on that game's position
+- ✅ Automatic timeout cleanup when games end or reset
+- ✅ No blocking or race conditions
+- ✅ Tested with 5+ simultaneous bot games
+
+#### Technical Details
+See [Bot Session Management Documentation](backend/BOT_SESSION_MANAGEMENT.md) for:
+- Complete architecture overview
+- API usage examples
+- Performance considerations
+- Comparison to Chess.com's approach
+- Troubleshooting guide
 
 ### File Structure
 ```
 backend/src/
-├── botPlayer.ts           # Bot AI logic with difficulty levels
-├── gameManager.ts         # Extended with bot game support
-├── server.ts              # Socket handlers for bot moves
+├── botPlayer.ts                      # Bot AI logic with difficulty levels
+├── gameManager.ts                    # Game state management with bot timeout tracking
+├── server.ts                         # Socket handlers for bot moves with error handling
 └── __tests__/
-    ├── botPlayer.test.ts  # Bot logic tests
-    └── gameManager.test.ts # Includes bot game tests
+    ├── botPlayer.test.ts             # Bot logic tests (22 tests)
+    ├── gameManager.test.ts           # Game manager tests (42 tests)
+    └── parallelBotSessions.test.ts   # Parallel session tests (10 tests)
 ```
 
 ## Contributing
