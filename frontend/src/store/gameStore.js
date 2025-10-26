@@ -47,6 +47,10 @@ const useGameStore = create((set, get) => ({
   moveHistory: [],
   capturedPieces: { white: [], black: [] },
   
+  // Selection state for tap-to-move
+  selectedSquare: null,
+  validMoves: [],
+  
   // Actions
   setRoomId: (roomId) => set({ roomId }),
   
@@ -63,6 +67,61 @@ const useGameStore = create((set, get) => ({
   setIsBotGame: (isBotGame) => set({ isBotGame }),
   
   setBotDifficulty: (difficulty) => set({ botDifficulty: difficulty }),
+  
+  // Tap-to-move actions
+  selectSquare: (square) => {
+    const { chess, selectedSquare, playerColor, currentTurn, gameOver, makeMove } = get();
+    
+    // Don't allow selection if game is over
+    if (gameOver) {
+      return;
+    }
+    
+    // Check if it's the player's turn
+    const playerTurn = playerColor === 'white' ? 'w' : 'b';
+    if (currentTurn !== playerTurn) {
+      return;
+    }
+    
+    // If clicking the same square, deselect
+    if (selectedSquare === square) {
+      set({ selectedSquare: null, validMoves: [] });
+      return;
+    }
+    
+    // Get the piece at the clicked square
+    const piece = chess.get(square);
+    
+    // If there's no piece, or it's not the player's piece
+    if (!piece || piece.color !== playerTurn) {
+      // If a square was previously selected, this might be a move
+      if (selectedSquare) {
+        // Try to make the move
+        const move = makeMove(selectedSquare, square);
+        if (move) {
+          // Move was successful, clear selection
+          set({ selectedSquare: null, validMoves: [] });
+          return move;
+        }
+      }
+      // Invalid square clicked, clear selection
+      set({ selectedSquare: null, validMoves: [] });
+      return;
+    }
+    
+    // Select the square and calculate valid moves
+    const moves = chess.moves({ square, verbose: true });
+    const validMoves = moves.map(m => m.to);
+    
+    set({ 
+      selectedSquare: square,
+      validMoves 
+    });
+  },
+  
+  clearSelection: () => {
+    set({ selectedSquare: null, validMoves: [] });
+  },
   
   updateGameState: (gameState) => {
     const { chess } = get();
@@ -95,6 +154,8 @@ const useGameStore = create((set, get) => ({
       capturedPieces,
       isBotGame: gameState.isBotGame || get().isBotGame,
       botDifficulty: gameState.botDifficulty || get().botDifficulty,
+      selectedSquare: null, // Clear selection on update
+      validMoves: [],
     });
     
     // Update game status
@@ -133,6 +194,8 @@ const useGameStore = create((set, get) => ({
           currentTurn: chess.turn(),
           moveHistory: history,
           capturedPieces,
+          selectedSquare: null, // Clear selection after move
+          validMoves: [],
         });
         
         return move;
@@ -203,6 +266,8 @@ const useGameStore = create((set, get) => ({
       moveHistory: [],
       capturedPieces: { white: [], black: [] },
       gameSaved: false,
+      selectedSquare: null, // Clear selection on reset
+      validMoves: [],
     });
   },
 }));
