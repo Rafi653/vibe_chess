@@ -5,6 +5,7 @@ import { Server } from 'socket.io'
 import dotenv from 'dotenv'
 import { gameManager } from './gameManager'
 import { selectBotMove, getBotDelay, BotDifficulty } from './botPlayer'
+import { matchmakingManager } from './matchmakingManager'
 import { connectDatabase } from './config/database'
 import authRoutes from './routes/auth'
 import gameHistoryRoutes from './routes/gameHistory'
@@ -247,9 +248,77 @@ io.on('connection', (socket) => {
     }
   })
 
+  // Matchmaking - Join queue for random opponent
+  socket.on('joinMatchmaking', ({ userId, username }) => {
+    console.log(`[Matchmaking] Player ${socket.id} (${username}) joining matchmaking queue`)
+    
+    const result = matchmakingManager.joinQueue(socket.id, userId, username)
+    
+    if (result.matched && result.roomId && result.opponent) {
+      // Match found! Create the game
+      gameManager.createGame(result.roomId, false)
+      
+      // Both players join the room
+      socket.join(result.roomId)
+      io.sockets.sockets.get(result.opponent.socketId)?.join(result.roomId)
+      
+      // Add players to the game
+      const player1Result = gameManager.addPlayer(result.roomId, socket.id, userId, false)
+      const player2Result = gameManager.addPlayer(result.roomId, result.opponent.socketId, result.opponent.userId, false)
+      
+      const gameState = gameManager.getState(result.roomId)
+      
+      // Notify both players about the match
+      socket.emit('matchFound', {
+        roomId: result.roomId,
+        color: player1Result.color,
+        opponent: {
+          username: result.opponent.username || 'Anonymous',
+          userId: result.opponent.userId
+        },
+        gameState,
+        timestamp: new Date().toISOString()
+      })
+      
+      io.to(result.opponent.socketId).emit('matchFound', {
+        roomId: result.roomId,
+        color: player2Result.color,
+        opponent: {
+          username: username || 'Anonymous',
+          userId: userId
+        },
+        gameState,
+        timestamp: new Date().toISOString()
+      })
+      
+      console.log(`[Matchmaking] Match created in room ${result.roomId}`)
+    } else {
+      // Added to queue, waiting for opponent
+      socket.emit('matchmakingQueued', {
+        queueSize: matchmakingManager.getQueueSize(),
+        timestamp: new Date().toISOString()
+      })
+    }
+  })
+
+  // Leave matchmaking queue
+  socket.on('leaveMatchmaking', () => {
+    const removed = matchmakingManager.leaveQueue(socket.id)
+    if (removed) {
+      console.log(`[Matchmaking] Player ${socket.id} left matchmaking queue`)
+      socket.emit('matchmakingLeft', {
+        timestamp: new Date().toISOString()
+      })
+    }
+  })
+
   // Disconnect event
   socket.on('disconnect', (reason) => {
     console.log(`[Socket.IO] Client disconnected: ${socket.id}, reason: ${reason}`)
+    
+    // Remove from matchmaking queue if present
+    matchmakingManager.leaveQueue(socket.id)
+    matchmakingManager.removeFromMatch(socket.id)
     
     // Note: In a production app, you'd want to track which rooms the socket was in
     // and clean up appropriately. For now, we'll leave games in memory.
@@ -266,9 +335,15 @@ io.on('connection', (socket) => {
   })
 })
 
+// Clean stale matchmaking queue entries every 2 minutes
+setInterval(() => {
+  matchmakingManager.cleanStaleEntries(5)
+}, 2 * 60 * 1000)
+
 // Start server
 server.listen(PORT, () => {
   console.log(`🚀 Backend server running on port ${PORT}`)
   console.log(`📡 Socket.IO server ready`)
+  console.log(`🎮 Matchmaking system active`)
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 })

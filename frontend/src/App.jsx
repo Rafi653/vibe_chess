@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Lobby from './pages/Lobby';
 import Game from './pages/Game';
+import Matchmaking from './pages/Matchmaking';
 import SavedGamesPage from './pages/SavedGamesPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -29,6 +30,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route element={<Layout />}>
             <Route path="/lobby" element={<Lobby />} />
+            <Route path="/matchmaking" element={<Matchmaking />} />
             <Route path="/game/:roomId" element={<Game />} />
             <Route path="/saved-games" element={<SavedGamesPage />} />
             <Route path="/profile" element={<Profile />} />
