@@ -1,6 +1,18 @@
 import { useState } from 'react';
 import useGameStore from '../../store/gameStore';
 
+// Analysis configuration constants
+const ACCURACY_CONSTANTS = {
+  MAX_ACCURACY: 95,
+  BASE_ACCURACY: 70,
+  CAPTURE_BONUS: 3,
+  CHECK_BONUS: 2
+};
+
+const ANALYSIS_SETTINGS = {
+  OPENING_MOVES_TO_SHOW: 6
+};
+
 const GameAnalysis = () => {
   const { moveHistory, gameOver, chess } = useGameStore();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -34,8 +46,18 @@ const GameAnalysis = () => {
     const blackChecksCount = checks.filter(move => move.color === 'b').length;
     
     // Calculate approximate accuracy (simplified)
-    const whiteAccuracy = Math.min(95, 70 + whiteCapturesCount * 3 + whiteChecksCount * 2);
-    const blackAccuracy = Math.min(95, 70 + blackCapturesCount * 3 + blackChecksCount * 2);
+    const whiteAccuracy = Math.min(
+      ACCURACY_CONSTANTS.MAX_ACCURACY, 
+      ACCURACY_CONSTANTS.BASE_ACCURACY + 
+      whiteCapturesCount * ACCURACY_CONSTANTS.CAPTURE_BONUS + 
+      whiteChecksCount * ACCURACY_CONSTANTS.CHECK_BONUS
+    );
+    const blackAccuracy = Math.min(
+      ACCURACY_CONSTANTS.MAX_ACCURACY, 
+      ACCURACY_CONSTANTS.BASE_ACCURACY + 
+      blackCapturesCount * ACCURACY_CONSTANTS.CAPTURE_BONUS + 
+      blackChecksCount * ACCURACY_CONSTANTS.CHECK_BONUS
+    );
     
     // Find opening moves (first 10 moves)
     const openingMoves = moveHistory.slice(0, Math.min(10, totalMoves));
@@ -162,7 +184,7 @@ const GameAnalysis = () => {
             <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
               <div className="text-sm font-semibold text-blue-900 mb-2">📖 Opening Phase</div>
               <div className="text-xs text-blue-800">
-                {analysis.openingMoves.slice(0, 6).map((move, idx) => (
+                {analysis.openingMoves.slice(0, ANALYSIS_SETTINGS.OPENING_MOVES_TO_SHOW).map((move, idx) => (
                   <span key={idx} className="mr-2">
                     {idx % 2 === 0 && `${Math.floor(idx / 2) + 1}.`} {move.san}
                   </span>
