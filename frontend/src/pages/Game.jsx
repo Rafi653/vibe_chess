@@ -92,10 +92,10 @@ function Game() {
   const opponentColor = displayPlayerColor === 'white' ? 'black' : 'white';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+    <div className="h-screen bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
       {/* Mobile Layout */}
       {isMobileView ? (
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col h-full">
           {/* Header - Opponent's Info */}
           <MobilePlayerBar color={opponentColor} isOpponent={true} />
           
@@ -125,48 +125,43 @@ function Game() {
           />
         </div>
       ) : (
-        /* Desktop Layout - Original */
-        <div className="container mx-auto px-4 py-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="mb-4">
+        /* Desktop Layout - Single Page, No Scroll */
+        <div className="h-full flex flex-col">
+          {/* Header */}
+          <div className="px-4 py-2 flex items-center justify-between bg-white shadow-md">
+            <div className="flex items-center gap-4">
               <Link
                 to="/lobby"
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
-                ← Back to Lobby
+                ← Back
               </Link>
-            </div>
-
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Vibe Chess {isBotGame && <span className="text-lg text-green-600">🤖 vs Bot ({botDifficulty})</span>}
+              <h1 className="text-xl font-bold text-gray-900">
+                Vibe Chess {isBotGame && <span className="text-sm text-green-600">🤖 vs Bot</span>}
               </h1>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 flex justify-center">
+          {/* Main Game Area */}
+          <div className="flex-1 overflow-hidden">
+            <div className="h-full flex items-center justify-center gap-4 px-4 py-2">
+              {/* Chess Board */}
+              <div className="flex-shrink-0">
                 <ChessBoard onMove={handleMove} />
               </div>
               
-              <div className="lg:col-span-1 space-y-4">
+              {/* Side Panel - Condensed */}
+              <div className="flex flex-col gap-2 h-full py-2 overflow-y-auto w-80">
                 <GameInfo onReset={handleReset} />
                 <PlayerNames />
                 <CapturedPieces />
-                <MoveHistory />
+                <div className="flex-1 min-h-0">
+                  <MoveHistory />
+                </div>
                 {!isBotGame && <GameSharing />}
               </div>
             </div>
-
-            <div className="mt-6 text-center text-sm text-gray-600">
-              <p>Drag and drop pieces to make your move</p>
-              {!isBotGame && <p className="mt-2">Share the room ID with your opponent to play together</p>}
-              {isBotGame && <p className="mt-2">The bot will respond automatically after your move</p>}
-            </div>
-          </motion.div>
+          </div>
         </div>
       )}
     </div>

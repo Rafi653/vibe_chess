@@ -21,6 +21,8 @@ describe('gameStore', () => {
     store.playerData = {};
     store.moveHistory = [];
     store.capturedPieces = { white: [], black: [] };
+    store.selectedSquare = null;
+    store.validMoves = [];
   });
 
   describe('initial state', () => {
@@ -259,6 +261,138 @@ describe('gameStore', () => {
       expect(state.moveHistory).toHaveLength(0);
       expect(state.gameOver).toBe(false);
       expect(state.winner).toBeNull();
+    });
+  });
+
+  describe('selectSquare - Tap to Move', () => {
+    beforeEach(() => {
+      // Set up a player so they can make moves
+      const store = useGameStore.getState();
+      store.playerColor = 'white';
+      store.currentTurn = 'w';
+      store.gameOver = false;
+    });
+
+    it('should select a square with a piece', () => {
+      const { selectSquare } = useGameStore.getState();
+      selectSquare('e2');
+      
+      const state = useGameStore.getState();
+      expect(state.selectedSquare).toBe('e2');
+      expect(state.validMoves.length).toBeGreaterThan(0);
+    });
+
+    it('should deselect when clicking the same square', () => {
+      const store = useGameStore.getState();
+      // Ensure clean state
+      store.selectedSquare = null;
+      store.validMoves = [];
+      
+      const { selectSquare } = useGameStore.getState();
+      selectSquare('e2');
+      
+      // Verify selection
+      let state = useGameStore.getState();
+      expect(state.selectedSquare).toBe('e2');
+      
+      // Click again to deselect
+      selectSquare('e2');
+      
+      state = useGameStore.getState();
+      expect(state.selectedSquare).toBeNull();
+      expect(state.validMoves).toHaveLength(0);
+    });
+
+    it('should make a move when selecting destination after selecting piece', () => {
+      const store = useGameStore.getState();
+      // Ensure clean state
+      store.selectedSquare = null;
+      store.validMoves = [];
+      
+      const { selectSquare } = useGameStore.getState();
+      selectSquare('e2'); // Select pawn
+      
+      // Verify selection
+      let state = useGameStore.getState();
+      expect(state.selectedSquare).toBe('e2');
+      
+      const move = selectSquare('e4'); // Move to e4
+      
+      expect(move).toBeTruthy();
+      state = useGameStore.getState();
+      expect(state.selectedSquare).toBeNull();
+      expect(state.validMoves).toHaveLength(0);
+      expect(state.moveHistory.length).toBeGreaterThan(0);
+    });
+
+    it('should clear selection on invalid destination', () => {
+      const { selectSquare } = useGameStore.getState();
+      selectSquare('e2'); // Select pawn
+      selectSquare('h8'); // Invalid move
+      
+      const state = useGameStore.getState();
+      expect(state.selectedSquare).toBeNull();
+      expect(state.validMoves).toHaveLength(0);
+    });
+
+    it('should not allow selection when game is over', () => {
+      const store = useGameStore.getState();
+      store.gameOver = true;
+      
+      const { selectSquare } = useGameStore.getState();
+      selectSquare('e2');
+      
+      const state = useGameStore.getState();
+      expect(state.selectedSquare).toBeNull();
+    });
+
+    it('should not allow selection when not player turn', () => {
+      const store = useGameStore.getState();
+      store.currentTurn = 'b'; // Black's turn, but player is white
+      
+      const { selectSquare } = useGameStore.getState();
+      selectSquare('e2');
+      
+      const state = useGameStore.getState();
+      expect(state.selectedSquare).toBeNull();
+    });
+
+    it('should calculate valid moves for selected piece', () => {
+      const { selectSquare } = useGameStore.getState();
+      selectSquare('e2');
+      
+      const state = useGameStore.getState();
+      expect(state.validMoves).toContain('e3');
+      expect(state.validMoves).toContain('e4');
+    });
+
+    it('should clear selection after making a move', () => {
+      const { makeMove } = useGameStore.getState();
+      const store = useGameStore.getState();
+      store.selectedSquare = 'e2';
+      store.validMoves = ['e3', 'e4'];
+      
+      makeMove('e2', 'e4');
+      
+      const state = useGameStore.getState();
+      expect(state.selectedSquare).toBeNull();
+      expect(state.validMoves).toHaveLength(0);
+    });
+  });
+
+  describe('clearSelection', () => {
+    it('should clear selected square and valid moves', () => {
+      const { selectSquare, clearSelection } = useGameStore.getState();
+      const store = useGameStore.getState();
+      store.playerColor = 'white';
+      store.currentTurn = 'w';
+      
+      selectSquare('e2');
+      clearSelection();
+      
+      const state = useGameStore.getState();
+      expect(state.selectedSquare).toBeNull();
+      expect(state.validMoves).toHaveLength(0);
     });
   });
 });
