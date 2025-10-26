@@ -70,7 +70,7 @@ const useGameStore = create((set, get) => ({
   
   // Tap-to-move actions
   selectSquare: (square) => {
-    const { chess, selectedSquare, playerColor, currentTurn, gameOver } = get();
+    const { chess, selectedSquare, playerColor, currentTurn, gameOver, makeMove } = get();
     
     // Don't allow selection if game is over
     if (gameOver) {
@@ -97,7 +97,7 @@ const useGameStore = create((set, get) => ({
       // If a square was previously selected, this might be a move
       if (selectedSquare) {
         // Try to make the move
-        const move = get().makeMove(selectedSquare, square);
+        const move = makeMove(selectedSquare, square);
         if (move) {
           // Move was successful, clear selection
           set({ selectedSquare: null, validMoves: [] });

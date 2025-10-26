@@ -151,7 +151,7 @@ function Game() {
               </div>
               
               {/* Side Panel - Condensed */}
-              <div className="flex flex-col gap-2 h-full py-2 overflow-y-auto w-80">
+              <div className="flex flex-col gap-2 h-full py-2 overflow-y-auto w-full max-w-xs lg:w-80">
                 <GameInfo onReset={handleReset} />
                 <PlayerNames />
                 <CapturedPieces />

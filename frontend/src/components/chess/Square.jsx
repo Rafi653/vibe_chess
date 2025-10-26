@@ -31,8 +31,9 @@ const Square = ({ position, piece, isLight, onDrop, playerColor, currentTurn }) 
 
   const bgColor = isLight ? 'bg-amber-100' : 'bg-amber-700';
   const hoverColor = isOver && canDrop ? 'bg-green-400' : '';
+  // Use different visual indicators to avoid conflicts
   const selectedColor = isSelected ? 'ring-4 ring-blue-500 ring-inset' : '';
-  const validMoveIndicator = isValidMove ? 'ring-4 ring-green-400 ring-inset' : '';
+  const validMoveIndicator = isValidMove && !isSelected ? 'ring-4 ring-green-400 ring-inset' : '';
 
   return (
     <div
