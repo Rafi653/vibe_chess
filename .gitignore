@@ -36,3 +36,7 @@ docker-compose.override.yml
 # Temporary files
 *.tmp
 .cache/
+
+# Test scripts
+test_*.js
+test_*.ts

@@ -18,6 +18,7 @@ interface GameState {
   createdAt: Date
   isBotGame?: boolean
   botDifficulty?: BotDifficulty
+  botMoveTimeout?: NodeJS.Timeout
 }
 
 class GameManager {
@@ -162,6 +163,9 @@ class GameManager {
    * Remove a game
    */
   removeGame(roomId: string): boolean {
+    // Clear any pending bot move timeout before removing the game
+    this.clearBotMoveTimeout(roomId)
+    
     const deleted = this.games.delete(roomId)
     if (deleted) {
       console.log(`[GameManager] Removed game for room: ${roomId}`)
@@ -217,6 +221,39 @@ class GameManager {
   getChessInstance(roomId: string): Chess | null {
     const game = this.games.get(roomId)
     return game?.chess || null
+  }
+
+  /**
+   * Set bot move timeout for a game
+   */
+  setBotMoveTimeout(roomId: string, timeout: NodeJS.Timeout): void {
+    const game = this.games.get(roomId)
+    if (game) {
+      // Clear any existing timeout first
+      if (game.botMoveTimeout) {
+        clearTimeout(game.botMoveTimeout)
+      }
+      game.botMoveTimeout = timeout
+    }
+  }
+
+  /**
+   * Clear bot move timeout for a game
+   */
+  clearBotMoveTimeout(roomId: string): void {
+    const game = this.games.get(roomId)
+    if (game?.botMoveTimeout) {
+      clearTimeout(game.botMoveTimeout)
+      game.botMoveTimeout = undefined
+    }
+  }
+
+  /**
+   * Check if a game has a pending bot move timeout
+   */
+  hasPendingBotMove(roomId: string): boolean {
+    const game = this.games.get(roomId)
+    return !!game?.botMoveTimeout
   }
 }
 

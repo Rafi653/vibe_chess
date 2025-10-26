@@ -168,12 +168,20 @@ io.on('connection', (socket) => {
 
       // If it's a bot game and the game is not over, trigger bot move
       if (gameManager.isBotGame(roomId) && !result.gameState.isGameOver) {
+        // Clear any pending bot move timeout to prevent multiple bot moves
+        gameManager.clearBotMoveTimeout(roomId)
+        
         const difficulty = gameManager.getBotDifficulty(roomId) || BotDifficulty.MEDIUM
         const delay = getBotDelay(difficulty)
         
-        setTimeout(() => {
-          const chess = gameManager.getChessInstance(roomId)
-          if (chess && !chess.isGameOver()) {
+        const timeout = setTimeout(() => {
+          try {
+            // Check if game still exists and it's still bot's turn
+            const chess = gameManager.getChessInstance(roomId)
+            if (!chess || chess.isGameOver()) {
+              return
+            }
+            
             const botMove = selectBotMove(chess, difficulty)
             
             if (botMove) {
@@ -190,10 +198,20 @@ io.on('connection', (socket) => {
                   gameState: botResult.gameState,
                   timestamp: new Date().toISOString()
                 })
+              } else {
+                console.error(`[Bot] Failed to make move in room ${roomId}: ${botResult.error}`)
               }
             }
+          } catch (error) {
+            console.error(`[Bot] Error making move in room ${roomId}:`, error)
+          } finally {
+            // Clear the timeout reference after execution
+            gameManager.clearBotMoveTimeout(roomId)
           }
         }, delay)
+        
+        // Store the timeout so it can be cleared if needed
+        gameManager.setBotMoveTimeout(roomId, timeout)
       }
     } else {
       // Send error back to the player
@@ -211,6 +229,9 @@ io.on('connection', (socket) => {
       return
     }
 
+    // Clear any pending bot move timeout before resetting
+    gameManager.clearBotMoveTimeout(roomId)
+    
     const success = gameManager.resetGame(roomId)
     
     if (success) {
