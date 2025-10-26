@@ -63,9 +63,9 @@ describe('userStore - Guest Mode', () => {
       store.setGuestMode();
       const firstGuestId = useUserStore.getState().user.id;
       
-      // Wait a bit to ensure different timestamp
+      // Use fake timers and set different system time to ensure different timestamp
       vi.useFakeTimers();
-      vi.advanceTimersByTime(10);
+      vi.setSystemTime(new Date(Date.now() + 1000)); // Advance by 1 second
       
       // Reset and create new guest
       store.user = null;
