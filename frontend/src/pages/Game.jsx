@@ -7,6 +7,7 @@ import ChessBoard from '../components/chess/ChessBoard';
 import GameInfo from '../components/chess/GameInfo';
 import MoveHistory from '../components/chess/MoveHistory';
 import MoveNavigation from '../components/chess/MoveNavigation';
+import GameAnalysis from '../components/chess/GameAnalysis';
 import CapturedPieces from '../components/chess/CapturedPieces';
 import PlayerNames from '../components/chess/PlayerNames';
 import GameSharing from '../components/chess/GameSharing';
@@ -165,6 +166,7 @@ function Game() {
                 <PlayerNames />
                 <CapturedPieces />
                 <MoveNavigation />
+                <GameAnalysis />
                 <div className="flex-1 min-h-0">
                   <MoveHistory />
                 </div>
