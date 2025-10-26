@@ -47,6 +47,10 @@ const useGameStore = create((set, get) => ({
   moveHistory: [],
   capturedPieces: { white: [], black: [] },
   
+  // Move navigation state
+  currentMoveIndex: undefined, // undefined means at latest position
+  navigationChess: null, // Separate Chess instance for navigation
+  
   // Selection state for tap-to-move
   selectedSquare: null,
   validMoves: [],
@@ -268,6 +272,42 @@ const useGameStore = create((set, get) => ({
       gameSaved: false,
       selectedSquare: null, // Clear selection on reset
       validMoves: [],
+      currentMoveIndex: undefined,
+      navigationChess: null,
+    });
+  },
+
+  // Move navigation - allows browsing through move history without affecting game
+  navigateToMove: (moveIndex) => {
+    const { moveHistory, chess } = get();
+    
+    // Validate move index
+    if (moveIndex < 0 || moveIndex > moveHistory.length) {
+      return;
+    }
+
+    // Create a new Chess instance for navigation
+    const navChess = new Chess();
+    
+    // Replay moves up to the specified index
+    for (let i = 0; i < moveIndex; i++) {
+      const move = moveHistory[i];
+      navChess.move({
+        from: move.from,
+        to: move.to,
+        promotion: move.promotion,
+      });
+    }
+
+    // Calculate captured pieces up to this point
+    const capturedUpToHere = calculateCapturedPieces(moveHistory.slice(0, moveIndex));
+
+    set({
+      currentMoveIndex: moveIndex,
+      navigationChess: navChess,
+      fen: navChess.fen(),
+      currentTurn: navChess.turn(),
+      capturedPieces: capturedUpToHere,
     });
   },
 }));

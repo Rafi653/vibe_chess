@@ -6,6 +6,7 @@ import useSocket from '../hooks/useSocket';
 import ChessBoard from '../components/chess/ChessBoard';
 import GameInfo from '../components/chess/GameInfo';
 import MoveHistory from '../components/chess/MoveHistory';
+import MoveNavigation from '../components/chess/MoveNavigation';
 import CapturedPieces from '../components/chess/CapturedPieces';
 import PlayerNames from '../components/chess/PlayerNames';
 import GameSharing from '../components/chess/GameSharing';
@@ -19,9 +20,12 @@ function Game() {
   const isBotGame = searchParams.get('bot') === 'true';
   const botDifficulty = searchParams.get('difficulty') || 'medium';
   
-  const { setRoomId, makeMove, resetGame, setIsBotGame, setBotDifficulty, playerColor, gameOver } = useGameStore();
+  const { setRoomId, makeMove, resetGame, setIsBotGame, setBotDifficulty, playerColor, gameOver, currentMoveIndex } = useGameStore();
   const { emitMove, emitReset } = useSocket(roomId, isBotGame, botDifficulty);
   const [isMobileView, setIsMobileView] = useState(false);
+  
+  // Check if user is navigating through history
+  const isNavigating = currentMoveIndex !== undefined;
 
   useEffect(() => {
     if (roomId) {
@@ -45,6 +49,11 @@ function Game() {
   }, []);
 
   const handleMove = (from, to) => {
+    // Prevent moves while navigating through history
+    if (isNavigating) {
+      return;
+    }
+    
     // Make move locally (optimistic update)
     const move = makeMove(from, to);
     
@@ -155,6 +164,7 @@ function Game() {
                 <GameInfo onReset={handleReset} />
                 <PlayerNames />
                 <CapturedPieces />
+                <MoveNavigation />
                 <div className="flex-1 min-h-0">
                   <MoveHistory />
                 </div>
